@@ -1,7 +1,460 @@
 <html>
-<head>
-</head>
-<body>
-Init
-</body>
+	<head>
+		<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+		<style type="text/css">
+			body {
+				font-family: 'Roboto', sans-serif;
+				margin: 0;
+			}
+			#g {
+				height: 30vh;
+				width: 100%;
+				/*background-color: #6078bf;*/
+				background-image: linear-gradient(#6078bf, white);
+			}
+			#header1 {
+				padding-left: 2vw; font-size: 2vw; padding-top: 3vh;
+			}
+			#text1 {
+				padding-left: 3vw; font-size: 0.8vw; padding-top: 1vh;
+			}
+			#code {
+			    color: black;
+			    background-color: #f9f9f9;
+			    border: 1px solid #ddd;
+				padding: 1em;
+			    line-height: 1.1em;
+			    margin-right: 50%;
+			    margin-left: 1vw;
+				margin-top: 1em;
+				margin-bottom: 1em;
+			    font-size: 0.7vw;
+			    white-space: pre-wrap;
+			}
+			#inlcode {
+				color: black;
+			    background-color: #f9f9f9;
+			    border: 1px solid #ddd;
+			    border-radius: 2px;
+			    padding: 1px 4px;
+			}
+			#highlight {
+				font-weight: bold;
+				text-decoration: underline;
+				text-decoration-color: red;
+			}
+			#subh {
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="g">
+			<div style="text-align: center; font-size: 5vw; padding-top: 15vh">LuaJIT Benchmarks</div>
+		</div>
+
+		<div id="header1" style="padding-top: 10vh;">About</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">These benchmark tests demonstrate the changes in LuaJIT performance against the Lua performance<br>
+						LuaJIT stated that globals and locals has the same performance unlike in Lua,<br>
+						LuaJIT uses Assembler and many other optimizations to improve Lua performance. But how was it changed from Lua?<br> 
+						Benchmark tests we're going to use were taken from here: <a href="https://springrts.com/wiki/Lua_Performance">https://springrts.com/wiki/Lua_Performance</a><br>
+						Specs: Intel i5-6500 3.20 GHz. 64-bit. LuaJIT 2.1.0-beta3.<br>
+						(JIT: ON SSE2 SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse)
+		</div>
+
+		<div id="header1">Benchmark Code</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/bench.lua">Source code</a><br>
+		Basically we will use this:<br>
+		<div id="code">
+for times=1,1000000 do
+	...
+end
+		</div></div>
+
+		<div id="header1">1. Localized variable</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local s = math.sin
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;Global / _ENV variable: 0.00034s (103.03%)<br>
+			&nbsp;&nbsp;Localized variable: 0.00033s (100%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Basically, there's no critical difference. (Fun fact: localized variable in plain Lua takes <a id="highlight">0.4s</a>) 
+		</div>
+
+		<div id="header1">2. Localized method. (3 calls)</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local class = {
+	test = function() return 1 end
+}
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local x = class.test()
+local y = class.test()
+local z = class.test()
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local test = class.test
+local x = test()
+local y = test()
+local z = test()
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;Direct call: 0.00035s (102.94%)<br>
+			&nbsp;&nbsp;Localized method call: 0.00034s (100%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference.
+		</div>
+
+		<div id="header1">3. Unpack</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local min = math.min
+local unpack = unpack
+local a = {100, 200, 300, 400}
+
+local function unpack4(a)
+	return a[1], a[2], a[3], a[4]
+end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local x = min(a[1], a[2], a[3], a[4])
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local x = min(unpack(a))
+			</div>
+			<div id="subh">Code 3:</div>
+			<div id="code">
+local x = min(unpack4(a))
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;a[n]: 0.00034s (100%)<br>
+			&nbsp;&nbsp;<a id="highlight">unpack(a): 0.04352s (12800%)</a><br>
+			&nbsp;&nbsp;unpack4(a): 0.00033s (103.12%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Don't use <a id="inlcode">unpack()</a> when performance matters. (Fun fact: Plain Lua unpack() scored <a id="highlight">1.093s (225%)</a>)
+		</div>
+
+		<div id="header1">4. Find and return maximum value. (3 calls)</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local max = math.max
+local random = math.random
+local cnt = 100
+local x = 0
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+x = max(random(cnt), x)
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local r = random(cnt)
+
+if (r > x) then
+	x = r
+end
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;math.[max/min]: 0.00519s (100%)<br>
+			&nbsp;&nbsp;if [>/<] then: 0.00559s (107.70%)
+
+			<div id="subh">Conclusion:</div>
+			&nbsp;Depends on situation, both are ok. (Fun fact: Plain Lua has the opposite results: max/min are twice slower than >/<)
+		</div>
+
+		<div id="header1">5. nil check (if vs a or b)</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local random = math.random
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local y, x
+
+if (random() > 0.5) then
+	y = 1
+end
+
+if (y == nil) then
+	x = 1
+else
+	x = y
+end
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local y
+
+if (random() > 0.5) then
+	y = 1
+end
+
+local x = y or 1
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;if nil: 0.01216s (101.92%)<br>
+			&nbsp;&nbsp;a or b: 0.01193s (100%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference. 
+		</div>
+
+		<div id="header1">6. x^2 vs x*x</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local x = 10
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local y = x ^ 2
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local y = x * x
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;if nil: 0.00034s (100%)<br>
+			&nbsp;&nbsp;a or b: 0.00035s (102.94%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
+		</div>
+
+		<div id="header1">7. math.mod vs % operator</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local fmod = math.fmod
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+if (fmod(times, 30) < 1) then
+	local x = 1
+end
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+if ((times % 30) < 1) then
+	local x = 1
+end
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;if nil: 0.00034s (100%)<br>
+			&nbsp;&nbsp;a or b: 0.00035s (102.94%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
+		</div>
+
+		<div id="header1">8. Predefined function or anonymous function in argument</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local func1 = function(a, b, func) return func(a + b) end
+local func2 = function(a) return a * 2 end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local x = func1(1, 2, function(a) return a * 2 end)
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local x = func1(1, 2, func2)
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;<a id="highlight">Function in argument: 0.05397s (16354.54%)</a><br>
+			&nbsp;&nbsp;Localized function: 0.00033s (100%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Anonymous function in argument is insensible but in case of multiple usage: localize it (Fun fact: Plain Lua scored <a id="highlight">3.890s</a> with the first code)
+		</div>
+
+		<div id="header1">9. for loops</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local a = {} for i=1,100 do a[#a + 1] = i end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+for j, v in pairs(a) do
+	x = v
+end
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+for j, v in ipairs(a) do
+	x = v
+end
+			</div>
+			<div id="subh">Code 3:</div>
+			<div id="code">
+for i = 1, 100 do
+	x = a[i]
+end
+			</div>
+			<div id="subh">Code 4:</div>
+			<div id="code">
+for i = 1, #a do
+	x = a[i]
+end
+			</div>
+			<div id="subh">Code 5:</div>
+			<div id="code">
+local length = #a
+
+for i = 1, length do
+	x = a[i]
+end
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;<a id="highlight">pairs(a): 0.69551s (906.79%)</a><br>
+			&nbsp;&nbsp;ipairs(a): 0.1236s (162.46%)<br>
+			&nbsp;&nbsp;Known length: 0.07889s (100%)<br>
+			&nbsp;&nbsp;#a: 0.09858s (126.31%)<br>
+			&nbsp;&nbsp;local len = #a: 0.09964s (127.97%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Try to use arrays instead of hashtable. If you know the exact size, localize #a. Don't use pairs for sequential arrays.
+		</div>
+
+		<div id="header1">10. a[x] vs a.x</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local a = {
+	foo = "bar"
+}
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+x = a["foo"]
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+x = a.foo
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;Function in argument: 0.00032s (100%)<br>
+			&nbsp;&nbsp;Localized function: 0.00032s (100%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference.
+		</div>
+
+		<div id="header1">11. Localizing table value for multiple uses</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local a = {} for i=1,100 do a[#a + 1] = {x=10} end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+for n = 1, 100 do
+	a[n].x = a[n].x + 1
+end
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+for n = 1, 100 do
+	local y = a[n]
+	y.x = y.x + 1
+end
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;Function in argument: 0.17903s (100%)<br>
+			&nbsp;&nbsp;Localized function: 0.18357s (102.53%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference.
+		</div>
+
+		<div id="header1">12. </div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local a = {}
+local tinsert = table.insert
+local count = 1
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+tinsert(a, times)
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+a[times] = times
+			</div>
+			<div id="subh">Code 3:</div>
+			<div id="code">
+a[#a + 1] = times
+			</div>
+			<div id="subh">Code 4:</div>
+			<div id="code">
+a[count] = times
+count = count + 1
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;<a id="highlight">tinsert: 0.10276s (1192.11%)</a><br>
+			&nbsp;&nbsp;a[times]: 0.00867s (100%)<br>
+			&nbsp;&nbsp;a[#a + 1]: 0.10293s (1187.19%)<br>
+			&nbsp;&nbsp;a[count] & count++: 0.10942s (1254.81%)
+
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Even table.insert is better than external counter. Try to use the `i` from the for loop or a[#a + 1]. (Fun fact: table.insert in Plain Lua is the slowest option)
+		</div>
+
+		<div id="header1">13. Table with and without pre-allocated size</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local a = {}
+a[1] = 1
+a[2] = 2
+a[3] = 3
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local a = {true, true, true}
+a[1] = 1
+a[2] = 2
+a[3] = 3
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;<a id="highlight">Allocated on demand: 0.16583s (48773.52%)</a><br>
+			&nbsp;&nbsp;Pre-allocated: 0.00034s (100%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Pre-allocate table size for better performance. 
+		</div>
+
+		<div id="header1">14. Table initialization before or each time on insertion</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+T = {}
+local CachedTable= {"abc","def","ghk"}
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+T[times] = CachedTable
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+T[times] = {"abc","def","ghk"}
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;Cached table for all insertion: 0.00098s (100%)<br>
+			&nbsp;&nbsp;Table constructor for each insertion: 0.06357s (6486.73%)
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;If you use the same table multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
+		</div>
+
+	</body>
 </html>
