@@ -11,7 +11,7 @@
 				background-image: linear-gradient(#6078bf, white);
 			}
 			#bottom {
-				height: 12em;
+				height: 14em;
 				width: 100%;
 			}
 			#header1 {
@@ -81,8 +81,8 @@ end
 local s = math.sin
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Global / _ENV variable: 0.00034s (103.03%)<br>
-			&nbsp;&nbsp;Localized variable: 0.00033s (100%)
+			&nbsp;&nbsp;Global / _ENV variable: 0.00036s (102.85%)<br>
+			&nbsp;&nbsp;Localized variable: 0.00035s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Basically, there's no critical difference. (Fun fact: localized variable in plain Lua takes <a id="highlight">0.4s</a>) 
 		</div>
@@ -109,10 +109,10 @@ local y = test()
 local z = test()
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Direct call: 0.00035s (102.94%)<br>
-			&nbsp;&nbsp;Localized method call: 0.00034s (100%)
+			&nbsp;&nbsp;Direct call: 0.00038s (105.55%)<br>
+			&nbsp;&nbsp;Localized method call: 0.00036s (100%)
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference.
+			&nbsp;&nbsp;Slight difference.
 		</div>
 
 		<div id="header1">3. Unpack</div> <!-- ---------------------------------------------------- -->
@@ -140,9 +140,9 @@ local x = min(unpack(a))
 local x = min(unpack4(a))
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;a[n]: 0.00034s (100%)<br>
-			&nbsp;&nbsp;<a id="highlight">unpack(a): 0.04352s (12800%)</a><br>
-			&nbsp;&nbsp;unpack4(a): 0.00033s (103.12%)
+			&nbsp;&nbsp;a[n]: 0.00035s (100%)<br>
+			&nbsp;&nbsp;<a id="highlight">unpack(a): 0.05458s (15594.28%)</a><br>
+			&nbsp;&nbsp;unpack4(a): 0.00042s (120%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Don't use <a id="inlcode">unpack()</a> when performance matters. (Fun fact: Plain Lua unpack() scored <a id="highlight">1.093s (225%)</a>)
 		</div>
@@ -169,8 +169,8 @@ if (r > x) then
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;math.[max/min]: 0.00519s (100%)<br>
-			&nbsp;&nbsp;if [>/<] then: 0.00559s (107.70%)
+			&nbsp;&nbsp;math.[max/min]: 0.00594s (105.69%)<br>
+			&nbsp;&nbsp;if [>/<] then: 0.00562s (100%)
 
 			<div id="subh">Conclusion:</div>
 			&nbsp;Depends on situation, both are ok. (Fun fact: Plain Lua has the opposite results: max/min are twice slower than >/<)
@@ -207,8 +207,8 @@ end
 local x = y or 1
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;if nil: 0.01216s (101.92%)<br>
-			&nbsp;&nbsp;a or b: 0.01193s (100%)
+			&nbsp;&nbsp;if nil: 0.01361s (100.36%)<br>
+			&nbsp;&nbsp;a or b: 0.01356s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. 
 		</div>
@@ -228,8 +228,8 @@ local y = x ^ 2
 local y = x * x
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;x^2: 0.00034s (100%)<br>
-			&nbsp;&nbsp;x*x: 0.00035s (102.94%)
+			&nbsp;&nbsp;x^2: 0.00042s (105%)<br>
+			&nbsp;&nbsp;x*x: 0.0004s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
 		</div>
@@ -253,10 +253,10 @@ if ((times % 30) < 1) then
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;math.mod: 0.0238s (581.90%)<br>
-			&nbsp;&nbsp;% operator: 0.00409s (100%)
+			&nbsp;&nbsp;<a id="highlight">math.mod: 0.03004s (567.86%)</a><br>
+			&nbsp;&nbsp;% operator: 0.00529s (100%)
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference.
+			&nbsp;&nbsp;Use % for positive numbers.
 		</div>
 
 		<div id="header1">8. Predefined function or anonymous function in argument</div> <!-- ---------------------------------------------------- -->
@@ -275,8 +275,8 @@ local x = func1(1, 2, function(a) return a * 2 end)
 local x = func1(1, 2, func2)
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">Function in argument: 0.05397s (16354.54%)</a><br>
-			&nbsp;&nbsp;Localized function: 0.00033s (100%)
+			&nbsp;&nbsp;<a id="highlight">Function in argument: 0.07222s (20634.28%)</a><br>
+			&nbsp;&nbsp;Localized function: 0.00035s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Anonymous function in argument is insensible but in case of multiple usage: localize it (Fun fact: Plain Lua scored <a id="highlight">3.890s</a> with the first code)
 		</div>
@@ -320,13 +320,13 @@ for i = 1, length do
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">pairs(a): 0.69551s (906.79%)</a><br>
-			&nbsp;&nbsp;ipairs(a): 0.1236s (162.46%)<br>
-			&nbsp;&nbsp;Known length: 0.07889s (100%)<br>
-			&nbsp;&nbsp;#a: 0.09858s (126.31%)<br>
-			&nbsp;&nbsp;local len = #a: 0.09964s (127.97%)
+			&nbsp;&nbsp;<a id="highlight">pairs(a): 0.81203s (894.30%)</a><br>
+			&nbsp;&nbsp;ipairs(a): 0.13764s (151.58%)<br>
+			&nbsp;&nbsp;Known length: 0.0908s (100%)<br>
+			&nbsp;&nbsp;#a: 0.13614s (149.93%)<br>
+			&nbsp;&nbsp;local len = #a: 0.14089s (155.16%)
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Try to use arrays instead of hashtable. If you know the exact size, localize #a. Don't use pairs for sequential arrays.
+			&nbsp;&nbsp;Try to use array instead of hashtable. If you know the exact size, localize #a. Don't use pairs for sequential arrays.
 		</div>
 
 		<div id="header1">10. a[x] vs a.x</div> <!-- ---------------------------------------------------- -->
@@ -346,8 +346,8 @@ x = a["foo"]
 x = a.foo
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;a[x]: 0.00032s (100%)<br>
-			&nbsp;&nbsp;a.x: 0.00032s (100%)
+			&nbsp;&nbsp;a[x]: 0.00034s (100%)<br>
+			&nbsp;&nbsp;a.x: 0.00035s (102.94%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
@@ -372,13 +372,13 @@ for n = 1, 100 do
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;a[n] & a[n]: 0.17903s (100%)<br>
-			&nbsp;&nbsp;local y = a[n] & y & y: 0.18357s (102.53%)
+			&nbsp;&nbsp;a[n] & a[n]: 0.20643s (100.86%)<br>
+			&nbsp;&nbsp;local y = a[n] & y & y: 0.20466s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
 
-		<div id="header1">12. </div> <!-- ---------------------------------------------------- -->
+		<div id="header1">12. Array insertion</div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -404,10 +404,10 @@ a[count] = times
 count = count + 1
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">tinsert: 0.10276s (1192.11%)</a><br>
-			&nbsp;&nbsp;a[times]: 0.00867s (100%)<br>
-			&nbsp;&nbsp;a[#a + 1]: 0.10293s (1187.19%)<br>
-			&nbsp;&nbsp;a[count] & count++: 0.10942s (1254.81%)
+			&nbsp;&nbsp;tinsert: 0.11811s (1220.14%)<br>
+			&nbsp;&nbsp;a[times]: 0.00968s (100%)<br>
+			&nbsp;&nbsp;a[#a + 1]: 0.11738s (1212.60%)<br>
+			&nbsp;&nbsp;<a id="highlight">a[count] & count++: 0.12443s (1285.43%)</a>
 
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Even table.insert is better than external counter. Try to use the `i` from the for loop or a[#a + 1]. (Fun fact: table.insert in Plain Lua is the slowest option)
@@ -430,8 +430,8 @@ a[2] = 2
 a[3] = 3
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">Allocated on demand: 0.16583s (48773.52%)</a><br>
-			&nbsp;&nbsp;Pre-allocated: 0.00034s (100%)
+			&nbsp;&nbsp;<a id="highlight">Allocated on demand: 0.18836s (47090%)</a><br>
+			&nbsp;&nbsp;Pre-allocated: 0.0004s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Pre-allocate table size for better performance. 
 		</div>
@@ -452,15 +452,17 @@ T[times] = CachedTable
 T[times] = {"abc","def","ghk"}
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Cached table for all insertion: 0.00098s (100%)<br>
-			&nbsp;&nbsp;Table constructor for each insertion: 0.06357s (6486.73%)
+			&nbsp;&nbsp;Cached table for all insertion: 0.00097s (100%)<br>
+			&nbsp;&nbsp;<a id="highlight">Table constructor for each insertion: 0.07628s (7863.91%)</a>
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;If you use the same table multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
 		</div>
 		<div id="bottom">
 			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">
+			<img src="http://hits.dwyl.io/GitSparTV/LuaJIT-Benchmarks/index.html.svg"><br>
 			Made by Spar (Spar#6665)<br>
 			New benchmark tests are welcome. <a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/">GitHub Page</a><br>
+			Public Domain<br>
 			2019
 			</div>
 		</div>
