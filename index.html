@@ -12,6 +12,10 @@
 				/*background-color: #6078bf;*/
 				background-image: linear-gradient(#6078bf, white);
 			}
+			#bottom {
+				height: 20vh;
+				width: 100%;
+			}
 			#header1 {
 				padding-left: 2vw; font-size: 2vw; padding-top: 3vh;
 			}
@@ -145,7 +149,7 @@ local x = min(unpack4(a))
 			&nbsp;&nbsp;Don't use <a id="inlcode">unpack()</a> when performance matters. (Fun fact: Plain Lua unpack() scored <a id="highlight">1.093s (225%)</a>)
 		</div>
 
-		<div id="header1">4. Find and return maximum value. (3 calls)</div> <!-- ---------------------------------------------------- -->
+		<div id="header1">4. Find and return maximum value</div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -226,8 +230,8 @@ local y = x ^ 2
 local y = x * x
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;if nil: 0.00034s (100%)<br>
-			&nbsp;&nbsp;a or b: 0.00035s (102.94%)
+			&nbsp;&nbsp;x^2: 0.00034s (100%)<br>
+			&nbsp;&nbsp;x*x: 0.00035s (102.94%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
 		</div>
@@ -251,10 +255,10 @@ if ((times % 30) < 1) then
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;if nil: 0.00034s (100%)<br>
-			&nbsp;&nbsp;a or b: 0.00035s (102.94%)
+			&nbsp;&nbsp;math.mod: 0.0238s (581.90%)<br>
+			&nbsp;&nbsp;% operator: 0.00409s (100%)
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
+			&nbsp;&nbsp;No difference.
 		</div>
 
 		<div id="header1">8. Predefined function or anonymous function in argument</div> <!-- ---------------------------------------------------- -->
@@ -344,8 +348,8 @@ x = a["foo"]
 x = a.foo
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Function in argument: 0.00032s (100%)<br>
-			&nbsp;&nbsp;Localized function: 0.00032s (100%)
+			&nbsp;&nbsp;a[x]: 0.00032s (100%)<br>
+			&nbsp;&nbsp;a.x: 0.00032s (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
@@ -370,8 +374,8 @@ for n = 1, 100 do
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Function in argument: 0.17903s (100%)<br>
-			&nbsp;&nbsp;Localized function: 0.18357s (102.53%)
+			&nbsp;&nbsp;a[n] & a[n]: 0.17903s (100%)<br>
+			&nbsp;&nbsp;local y = a[n] & y & y: 0.18357s (102.53%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
@@ -455,6 +459,12 @@ T[times] = {"abc","def","ghk"}
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;If you use the same table multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
 		</div>
-
+		<div id="bottom">
+			<div style="text-align: center; font-size: 1vw; padding-top: 10vh">
+			Made by Spar (Spar#6665)<br>
+			New benchmark tests are welcome. <a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/">GitHub Page</a><br>
+			2019
+			</div>
+		</div>
 	</body>
 </html>
