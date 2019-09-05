@@ -457,6 +457,32 @@ T[times] = {"abc","def","ghk"}
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;If you use the same table multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
 		</div>
+
+		<div id="header1">15. String split (by character)</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local text = "Hello, this is an example text"
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+for k=1,#text do local x = text:sub(k,k) end
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+for k in string.gmatch(text,".") do local x = k end
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+string.gsub(text,".",function(s) local x = s end)
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;sub(1,1): 0.04423s (100%)<br>
+			&nbsp;&nbsp;<a id="highlight">gmatch with ".": 1.7451s (3945.51%)</a><br>
+			&nbsp;&nbsp;<a id="highlight">gsub with "." and function: 2.34134s (5293.55%)</a>
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;string.sub is ok for char splitting. Patterns deal huge impact on performance.
+		</div>
 		<div id="bottom">
 			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">
 			<img src="http://hits.dwyl.io/GitSparTV/LuaJIT-Benchmarks/index.html.svg"><br>

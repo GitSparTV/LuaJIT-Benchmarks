@@ -14,20 +14,29 @@ function math.mean(t)
 end
 
 -- Setup
-local name1, name2 = "1", "2"
+local name1, name2 = "*", "^"
 local hr = string.rep("-", 36)
 local rt1, rt2 = {}, {}
 local clock = os.clock
 -- For benchmarking
-local s = math.sin
+local text = "Hello, this is an example text"
+local func = function(s) local x = s end
+
+function A(int)
+	string.gsub(text,".",func)
+end
+
+function B(int)
+	for k=1,#text do local x = text:sub(k,k) end
+end
 
 -- Functions
 function test1(arg)
-	math.sin(3)
+	local y = A(n)
 end
 
 function test2(arg)
-	s(3)
+	local y = B(n)
 end
 
 -- Warmup
@@ -41,7 +50,12 @@ for warm = 1, 1000000 do
 	test2() clock()
 end
 
-os.execute("sleep 1")
+-- os.execute("sleep 1")
+collectgarbage()
+collectgarbage()
+local T = 0
+while true do T = T + 1 if T > 1000000 then break end end 
+collectgarbage()
 -- Start benchmarking
 print("Benchmarking...")
 print("Benchmarking \"" .. name1 .. "\"...")
