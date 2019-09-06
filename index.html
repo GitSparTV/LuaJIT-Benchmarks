@@ -472,7 +472,7 @@ for k=1,#text do local x = text:sub(k,k) end
 			<div id="code">
 for k in string.gmatch(text,".") do local x = k end
 			</div>
-			<div id="subh">Code 2:</div>
+			<div id="subh">Code 3:</div>
 			<div id="code">
 string.gsub(text,".",function(s) local x = s end)
 			</div>
@@ -483,6 +483,28 @@ string.gsub(text,".",function(s) local x = s end)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;string.sub is ok for char splitting. Patterns deal huge impact on performance.
 		</div>
+
+		<div id="header1">16. Empty string check</div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local s = ""
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local y = #s == 0
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local y = s == ""
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;len == 0: 0.00033s (100%)<br>
+			&nbsp;&nbsp;str == "": 0.00033s (100%)<br>
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;No difference.
+		</div>
+
 		<div id="bottom">
 			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">
 			<img src="http://hits.dwyl.io/GitSparTV/LuaJIT-Benchmarks/index.html.svg"><br>
