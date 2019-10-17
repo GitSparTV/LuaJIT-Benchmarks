@@ -5,6 +5,7 @@
 		<meta name="description" content="LuaJIT Benchmark tests page. Made for understanding the results and for optimization solutions.">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="keywords" content="Lua, LuaJIT, benchmark, benchmark tests, performance, LuaJIT vs Lua, LuaJIT performance, Lua performance">
+		<script src="toc.js" type="text/javascript"></script>
 		<style type="text/css">
 			body {
 				font-family: 'Roboto', sans-serif;
@@ -19,6 +20,9 @@
 				width: 100%;
 			}
 			#header1 {
+				padding-left: 1em; font-size: 3em; padding-top: 1em;
+			}
+			#cheader1 {
 				padding-left: 1em; font-size: 3em; padding-top: 1em;
 			}
 			#text1 {
@@ -52,9 +56,12 @@
 			#subh {
 				font-weight: bold;
 			}
+			div#toc ul {
+			  list-style-type: none;
+			}
 		</style>
 	</head>
-	<body>
+	<body onload="generateTOC(document.getElementById('toc'));">
 		<div id="g">
 			<div style="text-align: center; font-size: 6em; padding-top: 2em">LuaJIT Benchmarks</div>
 		</div>
@@ -85,8 +92,9 @@ for take = 1, 100 do
 end
 		</div>
 	For percentage comparison we use the maximum of 100 takes. Average value may be more precise, so make sure to keep that in mind.</div>
-
-		<div id="header1">1. Localized variable</div> <!-- ---------------------------------------------------- -->
+		<div id="header1">Contents</div>
+		<div id="text1"><div id="toc"></div></div>
+		<div id="header1"><div id="ch1">1. Localized variable</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -107,7 +115,7 @@ local x = s(3.14)
 			&nbsp;&nbsp;No difference. (Fun fact: global variable in plain Lua takes <a id="highlight">0.7s</a>) 
 		</div>
 
-		<div id="header1">2. Localized method. (3 calls)</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">2. Localized method	 (3 calls)</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -135,7 +143,7 @@ local z = test()
 			&nbsp;&nbsp;No difference.
 		</div>
 
-		<div id="header1">3. Unpack</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">3. Unpack</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -167,7 +175,7 @@ local x = min(unpack4(a))
 			&nbsp;&nbsp;Don't use <a id="inlcode">unpack()</a> when performance matters. (Fun fact: Plain Lua unpack() scored <a id="highlight">1.093s (225%)</a>)
 		</div>
 
-		<div id="header1">4. Find and return maximum value</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">4. Find and return maximum value</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -198,7 +206,7 @@ x = num > y and num or x
 			&nbsp;Depends on situation, both are ok. (Fun fact: Plain Lua has the opposite results: max/min are twice slower than >/<)
 		</div>
 
-		<div id="header1">5. nil check (if vs a or b)</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">5. nil check (if vs a or b)</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Code 1:</div>
 			<div id="code">
@@ -223,7 +231,7 @@ local x = y or 1
 			&nbsp;&nbsp;No difference. 
 		</div>
 
-		<div id="header1">6. x^2 vs x*x</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">6. x^2 vs x*x</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -249,7 +257,7 @@ local y = math.pow(x,2)
 			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
 		</div>
 
-		<div id="header1">7. math.fmod vs % operator</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">7. math.fmod vs % operator</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -270,7 +278,7 @@ local x = (times % 30) < 1
 			&nbsp;&nbsp;Use % for positive numbers.
 		</div>
 
-		<div id="header1">8. Predefined function or anonymous function in argument</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">8. Predefined function or anonymous function in argument</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -292,7 +300,7 @@ local x = func1(1, 2, func2)
 			&nbsp;&nbsp;Anonymous function in argument is insensible in case of single use. Localize it in case of multiple use. (Fun fact: Plain Lua scored <a id="highlight">3.890s</a> with the first code)
 		</div>
 
-		<div id="header1">9. for loops</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">9. for loops</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -351,7 +359,7 @@ end
 
 			&nbsp;&nbsp;Try to use array instead of hashtable. If you know the exact size, localize #a. Don't use pairs for sequential arrays.
 		</div>
-		<div id="header1">10. a[x] vs a.x</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">10. a[x] vs a.x</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -374,7 +382,7 @@ x = a.foo
 			&nbsp;&nbsp;No difference.
 		</div>
 
-		<div id="header1">11. Localizing table value for multiple uses</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">11. Localizing table value for multiple uses</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -400,7 +408,7 @@ end
 			&nbsp;&nbsp;Sometimes localization is not important
 		</div>
 
-		<div id="header1">12. Array insertion</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">12. Array insertion</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -439,7 +447,7 @@ count = count + 1
 			&nbsp;&nbsp;Try to use the `i` from the for loop or a[#a + 1].
 		</div>
 
-		<div id="header1">13. Table with and without pre-allocated size</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">13. Table with and without pre-allocated size</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Code 1:</div>
 			<div id="code">
@@ -469,7 +477,7 @@ local a = {1, 2, 3}
 			&nbsp;&nbsp;Pre-allocate table size for better performance. 
 		</div>
 
-		<div id="header1">14. Table initialization before or each time on insertion</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">14. Table initialization before or each time on insertion</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -491,7 +499,7 @@ T[times] = {"abc","def","ghk"}
 			&nbsp;&nbsp;If you use the same table/userdata/function multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
 		</div>
 
-		<div id="header1">15. String split (by character)</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">15. String split (by character)</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -519,7 +527,7 @@ string.gsub(text,".",gsubfunc)
 			&nbsp;&nbsp;string.sub is ok for char splitting. Patterns deal huge impact on performance.
 		</div>
 
-		<div id="header1">16. Empty string check</div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">16. Empty string check</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
