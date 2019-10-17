@@ -60,10 +60,11 @@
 		</div>
 
 		<div id="header1" style="padding-top: 3em;">About</div> <!-- ---------------------------------------------------- -->
-		<div id="text1">These benchmark tests demonstrate the changes in LuaJIT performance against the Lua performance<br>
-						LuaJIT stated that globals and locals has the same performance unlike in Lua,<br>
-						LuaJIT uses Assembler and many other optimizations to improve its performance. But how was it changed from Lua?<br> 
+		<div id="text1">These benchmark tests demonstrate the changes in LuaJIT performance against the Lua performance.<br>
+						LuaJIT stated that globals and locals now has the same performance unlike in plain Lua,<br>
+						LuaJIT uses its own VM and many other optimizations to improve the performance. But how was it changed from Lua?<br> 
 						First 14 benchmark tests are taken from this page: <a href="https://springrts.com/wiki/Lua_Performance">https://springrts.com/wiki/Lua_Performance</a>.<br>
+						New benchmark tests are welcome. <a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/">GitHub Page</a><br>
 						Specs: Intel i5-6500 3.20 GHz. 64-bit. LuaJIT 2.1.0-beta3.<br>
 						(JIT: ON SSE2 SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse)
 		</div>
@@ -100,8 +101,8 @@ local x = math.sin(3.14)
 local x = s(3.14)
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Global / _ENV variable: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)<br>
-			&nbsp;&nbsp;Localized variable: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)
+			&nbsp;&nbsp;1. Global / _ENV variable: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)<br>
+			&nbsp;&nbsp;2. Localized variable: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. (Fun fact: global variable in plain Lua takes <a id="highlight">0.7s</a>) 
 		</div>
@@ -128,8 +129,8 @@ local y = test()
 local z = test()
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Direct call: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
-			&nbsp;&nbsp;Localized method call: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)
+			&nbsp;&nbsp;1. Direct call: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
+			&nbsp;&nbsp;2. Localized method call: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
@@ -159,9 +160,9 @@ local x = min(unpack(a))
 local x = min(unpack4(a))
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;a[n]: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
-			&nbsp;&nbsp;<a id="highlight">unpack(a): 0.05 (Min: 0.044, Average: 0.04572) second(s) (5000%)</a><br>
-			&nbsp;&nbsp;unpack4(a): 0.001 (Min: 0, Average: 0.00035) second(s) (100%)
+			&nbsp;&nbsp;1. a[n]: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
+			&nbsp;&nbsp;2. <a id="highlight">unpack(a): 0.05 (Min: 0.044, Average: 0.04572) second(s) (5000%)</a><br>
+			&nbsp;&nbsp;3. unpack4(a): 0.001 (Min: 0, Average: 0.00035) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Don't use <a id="inlcode">unpack()</a> when performance matters. (Fun fact: Plain Lua unpack() scored <a id="highlight">1.093s (225%)</a>)
 		</div>
@@ -189,9 +190,9 @@ end
 x = num > y and num or x
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;math.[max/min]: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)<br>
-			&nbsp;&nbsp;if [>/<] then: 0.001 (Min: 0, Average: 0.00035) second(s) (100%)<br>
-			&nbsp;&nbsp;>/< and ... or ...: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)
+			&nbsp;&nbsp;1. math.[max/min]: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)<br>
+			&nbsp;&nbsp;2. if [>/<] then: 0.001 (Min: 0, Average: 0.00035) second(s) (100%)<br>
+			&nbsp;&nbsp;3. >/< and ... or ...: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)
 
 			<div id="subh">Conclusion:</div>
 			&nbsp;Depends on situation, both are ok. (Fun fact: Plain Lua has the opposite results: max/min are twice slower than >/<)
@@ -216,8 +217,8 @@ local y
 local x = y or 1
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;if nil: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
-			&nbsp;&nbsp;a or b: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)
+			&nbsp;&nbsp;1. if nil: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
+			&nbsp;&nbsp;2. a or b: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. 
 		</div>
@@ -241,9 +242,9 @@ local y = x * x
 local y = math.pow(x,2)
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;x^2: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)<br>
-			&nbsp;&nbsp;x*x: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)<br>
-			&nbsp;&nbsp;math.pow: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)
+			&nbsp;&nbsp;1. x^2: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)<br>
+			&nbsp;&nbsp;2. x*x: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)<br>
+			&nbsp;&nbsp;3. math.pow: 0.001 (Min: 0, Average: 0.00032) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
 		</div>
@@ -263,8 +264,8 @@ local x = fmod(times, 30) < 1
 local x = (times % 30) < 1
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">math.fmod: 0.031 (Min: 0.025, Average: 0.02737) second(s) (620%)</a><br>
-			&nbsp;&nbsp;% operator: 0.005 (Min: 0.003, Average: 0.00406) second(s) (100%)
+			&nbsp;&nbsp;1. <a id="highlight">math.fmod: 0.031 (Min: 0.025, Average: 0.02737) second(s) (620%)</a><br>
+			&nbsp;&nbsp;2. % operator: 0.005 (Min: 0.003, Average: 0.00406) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Use % for positive numbers.
 		</div>
@@ -285,8 +286,8 @@ local x = func1(1, 2, function(a) return a * 2 end)
 local x = func1(1, 2, func2)
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">Function in argument: 0.764 (Min: 0.536, Average: 0.58371) second(s) (76400%) </a><br>
-			&nbsp;&nbsp;Localized function: 0.001 (Min: 0, Average: 0.00035) second(s) (100%)
+			&nbsp;&nbsp;1. <a id="highlight">Function in argument: 0.764 (Min: 0.536, Average: 0.58371) second(s) (76400%) </a><br>
+			&nbsp;&nbsp;2. Localized function: 0.001 (Min: 0, Average: 0.00035) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Anonymous function in argument is insensible in case of single use. Localize it in case of multiple use. (Fun fact: Plain Lua scored <a id="highlight">3.890s</a> with the first code)
 		</div>
@@ -307,25 +308,31 @@ for k, v in pairs(a) do
 	x = v
 end
 			</div>
-			<div id="subh">Code 2:</div>
+			<div id="subh">Code 2 (Using <a href="https://github.com/LuaJIT/LuaJIT/pull/275">JIT-ed next</a>):</div>
 			<div id="code">
-for k, v in ipairs(a) do
+for k, v in pairs(a) do
 	x = v
 end
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
+for k, v in ipairs(a) do
+	x = v
+end
+			</div>
+			<div id="subh">Code 4:</div>
+			<div id="code">
 for i = 1, 100 do
 	x = a[i]
 end
 			</div>
-			<div id="subh">Code 4:</div>
+			<div id="subh">Code 5:</div>
 			<div id="code">
 for i = 1, #a do
 	x = a[i]
 end
 			</div>
-			<div id="subh">Code 5:</div>
+			<div id="subh">Code 6:</div>
 			<div id="code">
 local length = #a
 
@@ -334,15 +341,16 @@ for i = 1, length do
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">pairs(a): 1.03 (Min: 0.699, Average: 0.76613) second(s) (1170.45%)</a><br>
-			&nbsp;&nbsp;ipairs(a): 0.138 (Min: 0.112, Average: 0.11859) second(s) (156.81%)<br>
-			&nbsp;&nbsp;Known length: 0.088 (Min: 0.077, Average: 0.08142) second(s) (100%)<br>
-			&nbsp;&nbsp;#a: 0.135 (Min: 0.115, Average: 0.12182) second(s) (153.40%)<br>
-			&nbsp;&nbsp;local len = #a: 0.13 (Min: 0.115, Average: 0.12153) second(s) (147.72%)
+			&nbsp;&nbsp;1. <a id="highlight">pairs(a): 1.03 (Min: 0.699, Average: 0.76613) second(s) (1170.45%)</a><br>
+			&nbsp;&nbsp;2. pairs(a) with <a href="https://github.com/LuaJIT/LuaJIT/pull/275">JIT-ed next</a>: 0.873 (Min: 0.69, Average: 0.73745) second(s) (992.04%)<br>
+			&nbsp;&nbsp;3. ipairs(a): 0.138 (Min: 0.112, Average: 0.11859) second(s) (156.81%)<br>
+			&nbsp;&nbsp;4. Known length: 0.088 (Min: 0.077, Average: 0.08142) second(s) (100%)<br>
+			&nbsp;&nbsp;5. #a: 0.135 (Min: 0.115, Average: 0.12182) second(s) (153.40%)<br>
+			&nbsp;&nbsp;6. local len = #a: 0.13 (Min: 0.115, Average: 0.12153) second(s) (147.72%)
 			<div id="subh">Conclusion:</div>
+
 			&nbsp;&nbsp;Try to use array instead of hashtable. If you know the exact size, localize #a. Don't use pairs for sequential arrays.
 		</div>
-
 		<div id="header1">10. a[x] vs a.x</div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
@@ -360,8 +368,8 @@ x = a["foo"]
 x = a.foo
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;a[x]: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
-			&nbsp;&nbsp;a.x: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)
+			&nbsp;&nbsp;1. a[x]: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
+			&nbsp;&nbsp;2. a.x: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
@@ -386,8 +394,8 @@ for n = 1, 100 do
 end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;a[n] & a[n]: 0.187 (Min: 0.168, Average: 0.17429) second(s) (100%)<br>
-			&nbsp;&nbsp;<a id="highlight">local y = a[n] & y & y: 0.215 (Min: 0.2, Average: 0.20592) second(s) (114.97%)</a>
+			&nbsp;&nbsp;1. a[n] & a[n]: 0.187 (Min: 0.168, Average: 0.17429) second(s) (100%)<br>
+			&nbsp;&nbsp;2. <a id="highlight">local y = a[n] & y & y: 0.215 (Min: 0.2, Average: 0.20592) second(s) (114.97%)</a>
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Sometimes localization is not important
 		</div>
@@ -422,13 +430,13 @@ a[count] = times
 count = count + 1
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">tinsert: 0.152 (Min: 0.096, Average: 0.11547) second(s) (1381.81%)</a><br>
-			&nbsp;&nbsp;<a id="highlight">tinsert at index 1: 671.901 (Min: 568.809, Average: 585.91501) second(s) (6108190.909091%)</a><br>
-			&nbsp;&nbsp;a[times]: 0.011 (Min: 0.007, Average: 0.00802) second(s) (100%)<br>
-			&nbsp;&nbsp;a[#a + 1]: 0.133 (Min: 0.095, Average: 0.11289) second(s) (1209%)<br>
-			&nbsp;&nbsp;<a id="highlight">a[count] & count++: 0.146 (Min: 0.069, Average: 0.10431) second(s) (1327.27%)</a>
+			&nbsp;&nbsp;1. <a id="highlight">tinsert: 0.152 (Min: 0.096, Average: 0.11547) second(s) (1381.81%)</a><br>
+			&nbsp;&nbsp;2. <a id="highlight">tinsert at index 1: 671.901 (Min: 568.809, Average: 585.91501) second(s) (6108190.909091%)</a><br>
+			&nbsp;&nbsp;3. a[times]: 0.011 (Min: 0.007, Average: 0.00802) second(s) (100%)<br>
+			&nbsp;&nbsp;4. a[#a + 1]: 0.133 (Min: 0.095, Average: 0.11289) second(s) (1209%)<br>
+			&nbsp;&nbsp;5. <a id="highlight">a[count] & count++: 0.146 (Min: 0.069, Average: 0.10431) second(s) (1327.27%)</a>
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Even table.insert is better than external counter. Try to use the `i` from the for loop or a[#a + 1]. (Fun fact: table.insert in Plain Lua is the slowest option)
+			&nbsp;&nbsp;Try to use the `i` from the for loop or a[#a + 1].
 		</div>
 
 		<div id="header1">13. Table with and without pre-allocated size</div> <!-- ---------------------------------------------------- -->
@@ -452,9 +460,9 @@ a[3] = 3
 local a = {1, 2, 3}
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;<a id="highlight">Allocated on demand: 6.504 (Min: 4.881, Average: 5.47615) second(s) (650400%)</a><br>
-			&nbsp;&nbsp;Pre-allocated with dummy values: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
-			&nbsp;&nbsp;Pre-allocated: 0.001 (Min: 0, Average: 0.00036) second(s) (100%)
+			&nbsp;&nbsp;1. <a id="highlight">Allocated on demand: 6.504 (Min: 4.881, Average: 5.47615) second(s) (650400%)</a><br>
+			&nbsp;&nbsp;2. Pre-allocated with dummy values: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
+			&nbsp;&nbsp;3. Defined in constructor: 0.001 (Min: 0, Average: 0.00036) second(s) (100%)
 			
 
 			<div id="subh">Conclusion:</div>
@@ -477,8 +485,8 @@ T[times] = CachedTable
 T[times] = {"abc","def","ghk"}
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;Cached table for all insertion: 0.002 (Min: 0, Average: 0.00081) second(s) (100%)<br>
-			&nbsp;&nbsp;<a id="highlight">Table constructor for each insertion: 6.072 (Min: 4.174, Average: 4.25071) second(s) (303600%)</a>
+			&nbsp;&nbsp;1. Cached table for all insertion: 0.002 (Min: 0, Average: 0.00081) second(s) (100%)<br>
+			&nbsp;&nbsp;2. <a id="highlight">Table constructor for each insertion: 6.072 (Min: 4.174, Average: 4.25071) second(s) (303600%)</a>
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;If you use the same table/userdata/function multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
 		</div>
@@ -503,9 +511,9 @@ for k in string.gmatch(text,".") do local x = k end
 string.gsub(text,".",gsubfunc)
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;sub(1,1): 0.034 (Min: 0.027, Average: 0.02901) second(s) (100%) (100%)<br>
-			&nbsp;&nbsp;<a id="highlight">gmatch with ".": 82.181 (Min: 77.892, Average: 80.0187) second(s) (241708.82%)</a><br>
-			&nbsp;&nbsp;<a id="highlight">gsub with "." and cached function: 186.598 (Min: 152.957, Average: 159.10795) second(s) (548817.64%)</a>
+			&nbsp;&nbsp;1. sub(1,1): 0.034 (Min: 0.027, Average: 0.02901) second(s) (100%) (100%)<br>
+			&nbsp;&nbsp;2. <a id="highlight">gmatch with ".": 82.181 (Min: 77.892, Average: 80.0187) second(s) (241708.82%)</a><br>
+			&nbsp;&nbsp;3. <a id="highlight">gsub with "." and cached function: 186.598 (Min: 152.957, Average: 159.10795) second(s) (548817.64%)</a>
 
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;string.sub is ok for char splitting. Patterns deal huge impact on performance.
@@ -526,8 +534,8 @@ local y = #s == 0
 local y = s == ""
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;len == 0: 0.001 (Min: 0, Average: 0.00037) second(s) (100%)<br>
-			&nbsp;&nbsp;str == "": 0.001 (Min: 0, Average: 0.00036) second(s) (100%)<br>
+			&nbsp;&nbsp;1. len == 0: 0.001 (Min: 0, Average: 0.00037) second(s) (100%)<br>
+			&nbsp;&nbsp;2. str == "": 0.001 (Min: 0, Average: 0.00036) second(s) (100%)<br>
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference. Use the latter syntax if you don't know the value type.
 		</div>
