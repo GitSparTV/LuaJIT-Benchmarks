@@ -454,6 +454,12 @@ count = count + 1
 
 		<div id="header1"><div id="ch1">13. Table with and without pre-allocated size</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local a
+require("table.new")
+local new = table.new
+			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
 a = {}
@@ -470,6 +476,13 @@ a[3] = 3
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
+a = new(3,0)
+a[1] = 1
+a[2] = 2
+a[3] = 3
+			</div>
+			<div id="subh">Code 4:</div>
+			<div id="code">
 a = {1, 2, 3}
 			</div>
 			<div id="subh">Code 4 (FFI):</div>
@@ -484,14 +497,15 @@ a[1] = 2
 a[2] = 3
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. <a id="highlight">Allocated on demand: 6.504 (Min: 4.881, Average: 5.47615) second(s) (650400%)</a><br>
-			&nbsp;&nbsp;2. Pre-allocated with dummy values: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
-			&nbsp;&nbsp;3. Defined in constructor: 0.001 (Min: 0, Average: 0.00036) second(s) (100%)<br>
-			&nbsp;&nbsp;4. (FFI) Defined in constructor: 0.043 (Min: 0.03, Average: 0.03219) second(s) (4300%)<br>
-			&nbsp;&nbsp;5. (FFI) <a id="highlight">Defined after: 0.06 (Min: 0.028, Average: 0.0323) second(s) (6000%)</a>
+			&nbsp;&nbsp;1. <a id="highlight">Allocated on demand: 0.176 (Min: 0.149, Average: 0.15534) second(s) (17600%)</a><br>
+			&nbsp;&nbsp;2. Pre-allocated with dummy values: 0.002 (Min: 0, Average: 0.00077) second(s) (200%)<br>
+			&nbsp;&nbsp;3. Pre-allocated by table.new: 0.056 (Min: 0.044, Average: 0.04804) second(s) (5600%)<br>
+			&nbsp;&nbsp;3. Defined in constructor: 0.001 (Min: 0, Average: 0.00077) second(s) (100%)<br>
+			&nbsp;&nbsp;4. (FFI) Defined in constructor: 0.001 (Min: 0, Average: 0.00073) second(s) (100%)<br>
+			&nbsp;&nbsp;5. (FFI) Defined after: 0.001 (Min: 0, Average: 0.00077) second(s) (100%)
 
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Pre-allocate table size for better performance. If you use FFI it's better to define values in constructor.
+			&nbsp;&nbsp;Pre-allocate table size for better performance.
 		</div>
 
 		<div id="header1"><div id="ch1">14. Table initialization before or each time on insertion</div></div> <!-- ---------------------------------------------------- -->
