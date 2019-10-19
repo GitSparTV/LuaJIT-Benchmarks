@@ -1,4 +1,7 @@
 -- Utils
+ffi = require("ffi")
+io.stdout:setvbuf("no")
+
 function topf(num)
 	return (string.format("%.10f", num):gsub("(%.-)0+$", ""))
 end
@@ -20,12 +23,13 @@ local rt1, rt2 = {}, {}
 local clock = os.clock
 -- For benchmarking
 
-
 ----------------------
 function test1(arg)
+
 end
 
 function test2(arg)
+	
 end
 
 -- Warmup
@@ -44,8 +48,7 @@ end
 collectgarbage()
 collectgarbage()
 collectgarbage("stop")
-collectgarbage("setpause", 0)
-collectgarbage("setstepmul", 1000)
+collectgarbage("setstepmul", 10000)
 collectgarbage()
 collectgarbage()
 local T = 0
@@ -57,7 +60,7 @@ end
 
 -- Start benchmarking
 print("Benchmarking...")
-print("Benchmarking \"" .. name1 .. "\"...")
+io.write("Benchmarking \"" .. name1 .. "\"")
 
 for take = 1, 100 do
 	local START = clock()
@@ -71,10 +74,11 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
+	io.write(".")
 	rt1[take] = END - START
 end
 
-print("Benchmarking \"" .. name2 .. "\"...")
+io.write("\nBenchmarking \"" .. name2 .. "\"")
 
 for take = 1, 100 do
 	local START = clock()
@@ -88,10 +92,11 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
+	io.write(".")
 	rt2[take] = END - START
 end
 
-print(hr) -- Horizontal line
+print("\n" .. hr) -- Horizontal line
 local ra1, ra2 = math.mean(rt1), math.mean(rt2)
 local rmax1, rmax2 = math.max(unpack(rt1)), math.max(unpack(rt2))
 local rmin1, rmin2 = math.min(unpack(rt1)), math.min(unpack(rt2))

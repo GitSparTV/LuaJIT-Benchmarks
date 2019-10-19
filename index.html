@@ -102,11 +102,11 @@ local s = math.sin
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local x = math.sin(3.14)
+x = math.sin(3.14)
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local x = s(3.14)
+x = s(3.14)
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. Global / _ENV variable: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)<br>
@@ -115,7 +115,7 @@ local x = s(3.14)
 			&nbsp;&nbsp;No difference. (Fun fact: global variable in plain Lua takes <a id="highlight">0.7s</a>) 
 		</div>
 
-		<div id="header1"><div id="ch1">2. Localized method	 (3 calls)</div></div> <!-- ---------------------------------------------------- -->
+		<div id="header1"><div id="ch1">2. Localized method	(3 calls)</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
@@ -125,16 +125,16 @@ local class = {
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local x = class.test()
-local y = class.test()
-local z = class.test()
+x = class.test()
+y = class.test()
+z = class.test()
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
 local test = class.test
-local x = test()
-local y = test()
-local z = test()
+x = test()
+y = test()
+z = test()
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. Direct call: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
@@ -157,15 +157,15 @@ end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local x = min(a[1], a[2], a[3], a[4])
+x = min(a[1], a[2], a[3], a[4])
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local x = min(unpack(a))
+x = min(unpack(a))
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
-local x = min(unpack4(a))
+x = min(unpack4(a))
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. a[n]: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
@@ -210,7 +210,7 @@ x = num > y and num or x
 		<div id="text1">
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local y, x
+local y
 
 if (y == nil) then
 	x = 1
@@ -221,8 +221,7 @@ end
 			<div id="subh">Code 2:</div>
 			<div id="code">
 local y
-
-local x = y or 1
+x = y or 1
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. if nil: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
@@ -239,15 +238,15 @@ local x = 10
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local y = x ^ 2
+y = x ^ 2
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local y = x * x
+y = x * x
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
-local y = math.pow(x,2)
+y = math.pow(x, 2)
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. x^2: 0.001 (Min: 0, Average: 0.00033) second(s) (100%)<br>
@@ -265,11 +264,11 @@ local fmod = math.fmod
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local x = fmod(times, 30) < 1
+x = fmod(times, 30) < 1
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local x = (times % 30) < 1
+x = (times % 30) < 1
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. <a id="highlight">math.fmod: 0.031 (Min: 0.025, Average: 0.02737) second(s) (620%)</a><br>
@@ -287,11 +286,11 @@ local func2 = function(a) return a * 2 end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local x = func1(1, 2, function(a) return a * 2 end)
+x = func1(1, 2, function(a) return a * 2 end)
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local x = func1(1, 2, func2)
+x = func1(1, 2, func2)
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. <a id="highlight">Function in argument: 0.764 (Min: 0.536, Average: 0.58371) second(s) (76400%) </a><br>
@@ -386,7 +385,13 @@ x = a.foo
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
-local a = {} for i=1,100 do a[#a + 1] = {x=10} end
+local a = {}
+
+for i = 1, 100 do
+	a[#a + 1] = {
+		x = 10
+	}
+end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
@@ -451,30 +456,42 @@ count = count + 1
 		<div id="text1">
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local a = {}
+a = {}
 a[1] = 1
 a[2] = 2
 a[3] = 3
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local a = {true, true, true}
+a = {true, true, true}
 a[1] = 1
 a[2] = 2
 a[3] = 3
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
-local a = {1, 2, 3}
+a = {1, 2, 3}
+			</div>
+			<div id="subh">Code 4 (FFI):</div>
+			<div id="code">
+a = ffi.new("int[3]", 1, 2, 3)
+			</div>
+			<div id="subh">Code 5 (FFI):</div>
+			<div id="code">
+a = ffi.new("int[3]")
+a[0] = 1
+a[1] = 2
+a[2] = 3
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. <a id="highlight">Allocated on demand: 6.504 (Min: 4.881, Average: 5.47615) second(s) (650400%)</a><br>
 			&nbsp;&nbsp;2. Pre-allocated with dummy values: 0.001 (Min: 0, Average: 0.00031) second(s) (100%)<br>
-			&nbsp;&nbsp;3. Defined in constructor: 0.001 (Min: 0, Average: 0.00036) second(s) (100%)
-			
+			&nbsp;&nbsp;3. Defined in constructor: 0.001 (Min: 0, Average: 0.00036) second(s) (100%)<br>
+			&nbsp;&nbsp;4. (FFI) Defined in constructor: 0.043 (Min: 0.03, Average: 0.03219) second(s) (4300%)<br>
+			&nbsp;&nbsp;5. (FFI) <a id="highlight">Defined after: 0.06 (Min: 0.028, Average: 0.0323) second(s) (6000%)</a>
 
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Pre-allocate table size for better performance. 
+			&nbsp;&nbsp;Pre-allocate table size for better performance. If you use FFI it's better to define values in constructor.
 		</div>
 
 		<div id="header1"><div id="ch1">14. Table initialization before or each time on insertion</div></div> <!-- ---------------------------------------------------- -->
@@ -482,7 +499,7 @@ local a = {1, 2, 3}
 			<div id="subh">Predefines:</div>
 			<div id="code">
 T = {}
-local CachedTable = {"abc","def","ghk"}
+local CachedTable = {"abc", "def", "ghk"}
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
@@ -490,7 +507,7 @@ T[times] = CachedTable
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-T[times] = {"abc","def","ghk"}
+T[times] = {"abc", "def", "ghk"}
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. Cached table for all insertion: 0.002 (Min: 0, Average: 0.00081) second(s) (100%)<br>
@@ -504,27 +521,43 @@ T[times] = {"abc","def","ghk"}
 			<div id="subh">Predefines:</div>
 			<div id="code">
 local text = "Hello, this is an example text"
-local gsubfunc = function(s) local x = s end
+local cstring = ffi.cast("const char*", text)
+local char = string.char
+
+local gsubfunc = function(s)
+	x = s
+end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-for k=1,#text do local x = text:sub(k,k) end
+for i = 1, #text do
+	x = text:sub(i, i)
+end
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-for k in string.gmatch(text,".") do local x = k end
+for k in string.gmatch(text, ".") do
+	x = k
+end
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
-string.gsub(text,".",gsubfunc)
+string.gsub(text, ".", gsubfunc)
+			</div>
+			<div id="subh">Code 4 (FFI):</div>
+			<div id="code">
+for i = 0, #text - 1 do
+	x = char(cstring[i])
+end
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. sub(1,1): 0.034 (Min: 0.027, Average: 0.02901) second(s) (100%) (100%)<br>
-			&nbsp;&nbsp;2. <a id="highlight">gmatch with ".": 82.181 (Min: 77.892, Average: 80.0187) second(s) (241708.82%)</a><br>
-			&nbsp;&nbsp;3. <a id="highlight">gsub with "." and cached function: 186.598 (Min: 152.957, Average: 159.10795) second(s) (548817.64%)</a>
+			&nbsp;&nbsp;1. sub(1,1): 0.425 (Min: 0.294, Average: 0.31636) second(s) (103.15%)<br>
+			&nbsp;&nbsp;2. <a id="highlight">gmatch with ".": 2.369 (Min: 1.766, Average: 1.86138) second(s) (575%)</a><br>
+			&nbsp;&nbsp;3. <a id="highlight">gsub with "." and cached function: 2.614 (Min: 2.082, Average: 2.32744) second(s) (634.46%)</a></br>
+			&nbsp;&nbsp;4. (FFI) Predefined const char* array: 0.412 (Min: 0.284, Average: 0.34237) second(s) (100%)
 
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;string.sub is ok for char splitting. Patterns deal huge impact on performance.
+			&nbsp;&nbsp;string.sub is ok for string splitting. Patterns deal huge impact on performance. If you use FFI you can store your strings as const char* and just directly call them as <a id="inlcode">char(cstring[i])</a>.
 		</div>
 
 		<div id="header1"><div id="ch1">16. Empty string check</div></div> <!-- ---------------------------------------------------- -->
@@ -532,20 +565,63 @@ string.gsub(text,".",gsubfunc)
 			<div id="subh">Predefines:</div>
 			<div id="code">
 local s = ""
+local cstring = ffi.cast("const char*", s)
+ffi.cdef([[
+	size_t strlen ( const char * str );
+]])
+local C = ffi.C
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-local y = #s == 0
+y = #s == 0
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-local y = s == ""
+y = s == ""
+			</div>
+			<div id="subh">Code 3 (FFI):</div>
+			<div id="code">
+y = cstring[0] == 0
+			</div>
+			<div id="subh">Code 4 (FFI):</div>
+			<div id="code">
+y = C.strlen(cstring) == 0
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. len == 0: 0.001 (Min: 0, Average: 0.00037) second(s) (100%)<br>
 			&nbsp;&nbsp;2. str == "": 0.001 (Min: 0, Average: 0.00036) second(s) (100%)<br>
+			&nbsp;&nbsp;3. (FFI) y = cstring[0] == 0: 0.001 (Min: 0, Average: 0.00034) second(s) (100%)<br>
+			&nbsp;&nbsp;4. (FFI) <a id="highlight">y = C.strlen(cstring) == 0: 0.004 (Min: 0.002, Average: 0.00241) second(s) (400%)</a>
+			
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference. Use the latter syntax if you don't know the value type.
+			&nbsp;&nbsp;No difference for Lua strings. Use the second syntax if you don't know the value type. If you use FFI consider using array indexing.
+		</div>
+		<div id="header1"><div id="ch1">17. C array size (FFI)</div></div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+new = ffi.new
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+x = new("const char*[16]")
+x1 = new("const char*[1024]")
+x2 = new("int[16]")
+x3 = new("int[1024]")
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+x = new("const char*[?]", 16)
+x1 = new("const char*[?]", 1024)
+x2 = new("int[?]", 16)
+x3 = new("int[?]", 1024)
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;1. [n]: 2.457 (Min: 2.228, Average: 2.36435) second(s) (102.46%)<br>
+			&nbsp;&nbsp;2. VLA: 2.398 (Min: 2.059, Average: 2.24737) second(s) (100%) (100%)<br>
+			
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Both of them are ok.
 		</div>
 
 		<div id="bottom">
