@@ -485,11 +485,11 @@ a[3] = 3
 			<div id="code">
 a = {1, 2, 3}
 			</div>
-			<div id="subh">Code 4 (FFI):</div>
+			<div id="subh">Code 5 (FFI):</div>
 			<div id="code">
 a = ffi.new("int[3]", 1, 2, 3)
 			</div>
-			<div id="subh">Code 5 (FFI):</div>
+			<div id="subh">Code 6 (FFI):</div>
 			<div id="code">
 a = ffi.new("int[3]")
 a[0] = 1
@@ -499,10 +499,10 @@ a[2] = 3
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. <a id="highlight">Allocated on demand: 0.176 (Min: 0.149, Average: 0.15534) second(s) (17600%)</a><br>
 			&nbsp;&nbsp;2. Pre-allocated with dummy values: 0.002 (Min: 0, Average: 0.00077) second(s) (200%)<br>
-			&nbsp;&nbsp;3. Pre-allocated by table.new: 0.056 (Min: 0.044, Average: 0.04804) second(s) (5600%)<br>
-			&nbsp;&nbsp;3. Defined in constructor: 0.001 (Min: 0, Average: 0.00077) second(s) (100%)<br>
-			&nbsp;&nbsp;4. (FFI) Defined in constructor: 0.001 (Min: 0, Average: 0.00073) second(s) (100%)<br>
-			&nbsp;&nbsp;5. (FFI) Defined after: 0.001 (Min: 0, Average: 0.00077) second(s) (100%)
+			&nbsp;&nbsp;3. <a id="highlight">Pre-allocated by table.new: 0.056 (Min: 0.044, Average: 0.04804) second(s) (5600%)</a><br>
+			&nbsp;&nbsp;4. Defined in constructor: 0.001 (Min: 0, Average: 0.00077) second(s) (100%)<br>
+			&nbsp;&nbsp;5. (FFI) Defined in constructor: 0.001 (Min: 0, Average: 0.00073) second(s) (100%)<br>
+			&nbsp;&nbsp;6. (FFI) Defined after: 0.001 (Min: 0, Average: 0.00077) second(s) (100%)
 
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Pre-allocate table size for better performance.
@@ -632,12 +632,61 @@ x3 = new("int[?]", 1024)
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. [n]: 2.457 (Min: 2.228, Average: 2.36435) second(s) (102.46%)<br>
-			&nbsp;&nbsp;2. VLA: 2.398 (Min: 2.059, Average: 2.24737) second(s) (100%) (100%)<br>
+			&nbsp;&nbsp;2. VLA: 2.398 (Min: 2.059, Average: 2.24737) second(s) (100%)<br>
 			
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Both of them are ok.
 		</div>
+		<div id="header1"><div id="ch1">18. String concatenation</div></div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local s, d
+local bs = string.rep("----------", 10000)
+local t = {bs, bs, bs, bs, bs, bs, bs, bs, bs, bs}
 
+-- I use this function to make sure that LuaJIT doesn't skip the iteration.
+local function use(_)
+	d = _
+end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+s = bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs
+use(s)
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+s = bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+s = s .. bs
+use(s)
+			</div>
+			<div id="subh">Code 3:</div>
+			<div id="code">
+s = table.concat(t)
+use(s)
+			</div>
+			<div id="subh">Code 4:</div>
+			<div id="code">
+s = string.format("%s%s%s%s%s%s%s%s%s%s", bs, bs, bs, bs, bs, bs, bs, bs, bs, bs)
+use(s)
+			</div>
+			<div id="subh">Results:</div>
+			&nbsp;&nbsp;1. All concatenations at once: 0.016 (Min: 0, Average: 0.00074) second(s) (100%)<br>
+			&nbsp;&nbsp;2. Separate concatenations: 0.061 (Min: 0, Average: 0.00093) second(s) (381.25%)<br>
+			&nbsp;&nbsp;3. <a id="highlight">table.concat: 296.693 (Min: 169.996, Average: 208.83417) second(s) (1854331.25%)</a><br>
+			&nbsp;&nbsp;4. string.format: 0.018 (Min: 0, Average: 0.00071) second(s) (112.5%)<br>
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Even when table.concat is compiled (so is ..) it's the slowest method.
+		</div>
 		<div id="bottom">
 			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">
 			<img src="http://hits.dwyl.io/GitSparTV/LuaJIT-Benchmarks/index.html.svg"><br>
