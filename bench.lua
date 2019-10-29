@@ -1,9 +1,44 @@
 -- Utils
-ffi = require("ffi")
 io.stdout:setvbuf("no")
+ffi = require("ffi")
+ffi.cdef([[
+	typedef int BOOL;
+	typedef unsigned long DWORD;
+	typedef long LONG;
+	 typedef __int64 LONGLONG; 
+	typedef union _LARGE_INTEGER {
+	  struct {
+	    DWORD LowPart;
+	    LONG  HighPart;
+	  };
+	  struct {
+	    DWORD LowPart;
+	    LONG  HighPart;
+	  } u;
+	  LONGLONG QuadPart;
+	} LARGE_INTEGER, *PLARGE_INTEGER;
+	BOOL QueryPerformanceCounter(
+	  LARGE_INTEGER *lpPerformanceCount
+	);
+	BOOL QueryPerformanceFrequency(
+	  LARGE_INTEGER *lpFrequency
+	);
+]])
+local t, f, C = ffi.new("LARGE_INTEGER"), ffi.new("LARGE_INTEGER"), ffi.C
+
+local function clock()
+	C.QueryPerformanceCounter(t)
+	C.QueryPerformanceFrequency(f)
+
+	return tonumber(t.QuadPart) / tonumber(f.QuadPart)
+end
 
 function topf(num)
-	return (string.format("%.10f", num):gsub("(%.-)0+$", ""))
+	return (string.format("%.5f", num):gsub("(%.-)0+$", ""))
+end
+
+function time(t)
+	return math.floor(t / 3600) .. ":" .. math.floor(t % 3600 / 60) .. ":" .. topf(t % 60)
 end
 
 function math.mean(t)
@@ -20,29 +55,44 @@ end
 local name1, name2 = "1", "2"
 local hr = string.rep("-", 36)
 local rt1, rt2 = {}, {}
-local clock = os.clock
--- For benchmarking
 
+-- For benchmarking
+local s = math.sin
 ----------------------
 function test1(arg)
-
+	x = math.sin(3.14)
 end
 
 function test2(arg)
-	
+	x = s(3.14)
 end
 
+----------------------
 -- Warmup
 print("Warming up...")
 
-for warm = 1, 1000000 do
-	test1(warm)
-	clock()
-end
+do
+	local START = clock()
 
-for warm = 1, 1000000 do
-	test2(warm)
-	clock()
+	for warm = 1, 1000000 do
+		test1(warm)
+		clock()
+	end
+
+	local END = clock()
+	local res1 = END - START
+	print("\tWarm-up for \"" .. name1 .. "\" took: " .. topf(END - START) .. " second(s)")
+	START = clock()
+
+	for warm = 1, 1000000 do
+		test2(warm)
+		clock()
+	end
+
+	END = clock()
+	local res2 = END - START
+	print("\tWarm-up for \"" .. name2 .. "\" took: " .. topf(END - START) .. " second(s)")
+	print("\tWhole test should take about: " .. time(res1 * 100 + res2 * 100))
 end
 
 collectgarbage()
@@ -60,9 +110,10 @@ end
 
 -- Start benchmarking
 print("Benchmarking...")
-io.write("Benchmarking \"" .. name1 .. "\"")
+io.write("\tBenchmarking \"" .. name1 .. "\"")
 
 for take = 1, 100 do
+	io.write(".")
 	local START = clock()
 
 	---
@@ -74,13 +125,13 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
-	io.write(".")
 	rt1[take] = END - START
 end
 
-io.write("\nBenchmarking \"" .. name2 .. "\"")
+io.write("\n\tBenchmarking \"" .. name2 .. "\"")
 
 for take = 1, 100 do
+	io.write(".")
 	local START = clock()
 
 	---
@@ -92,7 +143,6 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
-	io.write(".")
 	rt2[take] = END - START
 end
 
@@ -112,6 +162,7 @@ else
 	percentFor2 = 100
 end
 
-print(name1 .. ": " .. rmax1 .. " (Min: " .. topf(rmin1) .. ", Average: " .. topf(ra1) .. ") second(s) (" .. percentFor1 .. "%) (" .. topf(percentFor1) .. "%)")
-print(name2 .. ": " .. rmax2 .. " (Min: " .. topf(rmin2) .. ", Average: " .. topf(ra2) .. ") second(s) (" .. percentFor2 .. "%) (" .. topf(percentFor2) .. "%)")
+print(name1 .. ": " .. topf(rmax1) .. " (Min: " .. topf(rmin1) .. ", Average: " .. topf(ra1) .. ") second(s) (" .. topf(percentFor1) .. "%)")
+print(name2 .. ": " .. topf(rmax2) .. " (Min: " .. topf(rmin2) .. ", Average: " .. topf(ra2) .. ") second(s) (" .. topf(percentFor2) .. "%)")
 os.execute("rundll32.exe cmdext.dll,MessageBeepStub")
+-- os.execute("pause")
