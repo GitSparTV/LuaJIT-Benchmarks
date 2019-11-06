@@ -2,21 +2,21 @@
 io.stdout:setvbuf("no")
 
 -- For benchmarking
-local TYPE_bool = "bool"
-function isbool1(b)
-    return type(b) == "bool"
-end
-
-function isbool2(b)
-    return type(b) == TYPE_bool
-end
+local class = {
+    test = function() return 1 end
+}
 
 function test1(arg)
-	x = isbool1(false)
+	x = class.test()
+	y = class.test()
+	z = class.test()
 end
 
 function test2(arg)
-	x = isbool2(false)
+	local test = class.test
+	x = test()
+	y = test()
+	z = test()
 end
 
 ----------------------
