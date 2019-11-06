@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono|Ubuntu+Mono&display=swap" rel="stylesheet">
 		<title>LuaJIT Benchmark Tests</title>
 		<meta name="description" content="LuaJIT Benchmark tests page. Made for understanding the results and for optimization solutions.">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,8 +38,42 @@
 			    margin-left: 1em;
 				margin-top: 1em;
 				margin-bottom: 1em;
-			    font-size: 1em;
+			    font-size: 0.9em;
 			    white-space: pre-wrap;
+				font-family: 'Roboto Mono', monospace;
+			}
+			#bytecode {
+			    color: black;
+			    background-color: #EFF1F8;
+			    border: 1px solid #ddd;
+				padding: 1em;
+			    line-height: 1.1em;
+			    margin-right: 50%;
+			    margin-left: 1em;
+				margin-top: 1em;
+				margin-bottom: 1em;
+			    font-size: 0.8em;
+			    white-space: pre-wrap;
+				font-family: 'Ubuntu Mono', monospace;
+			}
+			table {
+			    color: black;
+			    background-color: #EFF1F8;
+				padding: 1em;
+			    margin-right: 50%;
+			    margin-left: 1em;
+				margin-top: 1em;
+				margin-bottom: 1em;
+			    white-space: pre-wrap;
+			    border-collapse: collapse;
+			}
+			td, th {
+			  border: 1px solid #26304C;
+			  text-align: center;
+			  padding: 8px;
+			}
+			th {
+				background-color: #cfd6eb;
 			}
 			#inlcode {
 				color: black;
@@ -79,19 +113,20 @@
 		<div id="header1">Benchmark Code</div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/bench.lua">Source code</a><br>
-		Basically we will use this:<br>
-		<div id="code">
+			Basically we will use this:<br>
+			<div id="code">
 for take = 1, 100 do
-	local START = os.clock()
+    local START = os.clock()
 
-	for times = 1, 1000000 do
-		...
-	end
+    for times = 1, 1000000 do
+        ...
+    end
 
-	local END = os.clock()
+    local END = os.clock()
 end
+			</div>
+			For percentage comparison we use the maximum of 100 takes. Average value may be more precise, so make sure to keep that in mind.
 		</div>
-	For percentage comparison we use the maximum of 100 takes. Average value may be more precise, so make sure to keep that in mind.</div>
 		<div id="header1">Contents</div>
 		<div id="text1"><div id="toc"></div></div>
 		<div id="header1"><div id="ch1">1. Localized variable</div></div> <!-- ---------------------------------------------------- -->
@@ -108,41 +143,36 @@ x = math.sin(3.14)
 			<div id="code">
 x = s(3.14)
 			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. Global / _ENV variable: 0.00099 (Min: 0.00029, Average: 0.00039) second(s) (102.17%)<br>
-			&nbsp;&nbsp;2. Localized variable: 0.00097 (Min: 0.0003, Average: 0.00038) second(s) (100%)
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. Global (_ENV) variable: 50 instructions total.<br>
+			&nbsp;&nbsp;2. Localized variable: 34 instructions total.
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference. (Fun fact: global variable in plain Lua takes <a id="highlight">0.7s</a>) 
+			&nbsp;&nbsp;The difference is in 16 instructions which is almost nothing. (Fun fact: global variable in plain Lua takes <a id="highlight">0.7s</a>) 
 		</div>
-
 		<div id="header1"><div id="ch1">2. Localized method	(3 calls)</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
 			<div id="subh">Predefines:</div>
 			<div id="code">
 local class = {
-	test = function() return 1 end
+    test = function() return 1 end
 }
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-for i = 1, 5000 do
-	x = class.test()
-	y = class.test()
-	z = class.test()
-end
+x = class.test()
+y = class.test()
+z = class.test()
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-for i = 1, 5000 do
-	local test = class.test
-	x = test()
-	y = test()
-	z = test()
-end
+local test = class.test
+x = test()
+y = test()
+z = test()
 			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. Direct call: 2.10904 (Min: 1.72025, Average: 1.7977) second(s) (100%)<br>
-			&nbsp;&nbsp;2. Localized method call: 2.10936 (Min: 1.69758, Average: 1.81756) second(s) (100.01%)
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. Direct call: 58 instructions total.<br>
+			&nbsp;&nbsp;2. Localized method call: 59 instructions total.
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference.
 		</div>
@@ -155,7 +185,7 @@ local unpack = unpack
 local a = {100, 200, 300, 400}
 
 local function unpack4(a)
-	return a[1], a[2], a[3], a[4]
+    return a[1], a[2], a[3], a[4]
 end
 			</div>
 			<div id="subh">Code 1:</div>
@@ -190,62 +220,168 @@ local y = 0
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-for i = 1,5000 do
-	x = max(num, y)
-end
+x = max(num, y)
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-for i = 1,5000 do
-	if (num > y) then
-		x = num
-	end
+if (num > y) then
+    x = num
 end
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
-for i = 1,5000 do
-	x = num > y and num or x
-end
+x = num > y and num or x
 			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. math.[max/min]: 1.96412 (Min: 1.68282, Average: 1.76018) second(s) (100%)<br>
-			&nbsp;&nbsp;2. if [>/<] then: 2.34396 (Min: 1.70205, Average: 1.81333) second(s) (119.33%)<br>
-			&nbsp;&nbsp;3. >/< and ... or ...: 2.19993 (Min: 1.70727, Average: 1.8106) second(s) (112%)
-
-
-
-
+			<div id="subh">Bytecode Results:</div>
+			&nbsp;&nbsp;1. math.[max/min]:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;11 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>UGET</td>
+					<td>Set A to upvalue D</td> 
+					<td>1	0</td>
+					<td>max</td>
+				</tr>
+				<tr>
+					<td>CALL</td>
+					<td>Call</td> 
+					<td>1	2	3</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>FUNCC</td>
+					<td>Pseudo-header for C functions</td> 
+					<td></td>
+					<td>math.max</td>
+				</tr>
+			</table>
+			&nbsp;&nbsp;2. if [>/<] then:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;11 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>ISGE</td>
+					<td>Jump if A ≥ D</td> 
+					<td>2	1</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>JMP</td>
+					<td>Jump</td> 
+					<td>1</td>
+					<td>=> 0007 (Jumps to the end of the function)</td>
+				</tr>
+				<tr>
+					<td>UGET</td>
+					<td>Set A to upvalue D</td> 
+					<td>1	0</td>
+					<td>num</td>
+				</tr>
+			</table>
+			&nbsp;&nbsp;3. >/< and ... or ...:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;13 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>IST</td>
+					<td>Jump if D is true</td> 
+					<td>1</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>JMP</td>
+					<td>Jump</td> 
+					<td>2</td>
+					<td>=> 0009 (Jumps to "x = result")</td>
+				</tr>
+			</table>
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. math.[max/min]: 34 instructions total.<br>
+			&nbsp;&nbsp;2. if [>/<] then: 34 instructions total.<br>
+			&nbsp;&nbsp;3. >/< and ... or ...: 34 instructions total.
 			<div id="subh">Conclusion:</div>
-			&nbsp;Depends on situation, both are ok. (Fun fact: Plain Lua has the opposite results: max/min are twice slower than >/<)
+			&nbsp;&nbsp;Even with localized math.max the amount of instructions is the same (using global math.max will add 16 additional instructions).<br>
+			&nbsp;&nbsp;No difference. You can choose anything that suits your code. (Fun fact: Plain Lua max/min are twice slower than >/<)
 		</div>
 
 		<div id="header1"><div id="ch1">5. nil check (if vs a or b)</div></div> <!-- ---------------------------------------------------- -->
 		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local y
+			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-for i = 1, 1000 do
-	local y
-
-	if (y == nil) then
-		x = 1
-	else
-		x = y
-	end
+if y == nil then
+    x = 1
+else
+    x = y
 end
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-for i = 1, 1000 do
-	local y
-	x = y or 1
-end
+x = y or 1
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. if nil: 0.52687 (Min: 0.3491, Average: 0.37962) second(s) (129.15%)<br>
-			&nbsp;&nbsp;2. a or b: 0.40793 (Min: 0.34957, Average: 0.36266) second(s) (100%)
+			&nbsp;&nbsp;1. if nil:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;11 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>ISNEP</td>
+					<td>Jump if A (var) ≠ D (primitive)</td> 
+					<td>1	0</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>JMP</td>
+					<td>Jump</td> 
+					<td>1</td>
+					<td>=> 0009 (Jumps to the end of the function)</td>
+				</tr>
+			</table>
+			&nbsp;&nbsp;2. a or b:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;10 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+				</tr>
+				<tr>
+					<td>IST</td>
+					<td>Jump if D is true</td> 
+					<td>1</td>
+				</tr>
+			</table>
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. if nil: 39 instructions total.<br>
+			&nbsp;&nbsp;2. a or b: 39 instructions total.
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference. 
+			&nbsp;&nbsp;In assembly form they become identical, that is, no difference.<br>
+			&nbsp;&nbsp;But, don't forget if <a id="inlcode">a = false</a> and <a id="inlcode">b = true</a>, it chooses <a id="inlcode">b</a>.<br>
+			&nbsp;&nbsp;The same is in <a id="inlcode">a and b or c</a>: If <a id="inlcode">a = true</a> but <a id="inlcode">b = false</a> it chooses <a id="inlcode">c</a>.
 		</div>
 
 		<div id="header1"><div id="ch1">6. x^2 vs x*x</div></div> <!-- ---------------------------------------------------- -->
@@ -253,32 +389,103 @@ end
 			<div id="subh">Predefines:</div>
 			<div id="code">
 local x = 10
+local pow = math.pow
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
-for i = 1, 1000 do
-	y = x ^ 2
-end
+y = x ^ 2
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
-for i = 1, 1000 do
-	y = x * x
-end
+y = x * x
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
-for i = 1, 1000 do
-	y = math.pow(x, 2)
-end
+y = pow(x, 2)
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. x^2: 0.38873 (Min: 0.34823, Average: 0.36186) second(s) (101.56%)<br>
-			&nbsp;&nbsp;2. x*x: 0.38273 (Min: 0.35423, Average: 0.36342) second(s) (100%)<br>
-			&nbsp;&nbsp;3. <a id="highlight">math.pow: 3.56163 (Min: 2.04571, Average: 2.18397) second(s) (930.58%)</a>
-
+			&nbsp;&nbsp;1. x^2:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;9 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+				</tr>
+				<tr>
+					<td>KSHORT</td>
+					<td>Set A to 16 bit signed integer D</td> 
+					<td>2	2</td>
+				</tr>
+				<tr>
+					<td>POW</td>
+					<td>A = B ^ C</td> 
+					<td>1	1	2</td>
+				</tr>        
+			</table>
+			&nbsp;&nbsp;2. x*x:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;9 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>UGET</td>
+					<td>Set A to upvalue D</td> 
+					<td>2	0</td>
+					<td>x</td>
+				</tr>
+				<tr>
+					<td>MULVV</td>
+					<td>A = B * C</td> 
+					<td>1	1	2</td>
+					<td></td>
+				</tr>
+			</table>
+			&nbsp;&nbsp;3. math.pow:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;<a id="highlight">12 instructions total</a>. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>UGET</td>
+					<td>Set A to upvalue D</td> 
+					<td>1	0</td>
+					<td>pow</td>
+				</tr>
+				<tr>
+					<td>KSHORT</td>
+					<td>Set A to 16 bit signed integer D</td> 
+					<td>3	2</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>CALL</td>
+					<td>Call</td> 
+					<td>1	2	3</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>FUNCC</td>
+					<td>Pseudo-header for C functions</td> 
+					<td></td>
+					<td>math.pow</td>
+				</tr>
+			</table>
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. x^2: 34 instructions total.<br>
+			&nbsp;&nbsp;2. x*x: 34 instructions total.<br>
+			&nbsp;&nbsp;3. math.pow: 34 instructions total.
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;math.pow probably has a function overhead. <!-- (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>) -->
+			&nbsp;&nbsp;No difference when compiled.<br>
+			&nbsp;&nbsp;Otherwise use <a id="inlcode">*</a> or <a id="inlcode">^</a>. math.pow has a function overhead, when 1 and 2 have their own opcodes. (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
 		</div>
 
 		<div id="header1"><div id="ch1">7. math.fmod vs % operator</div></div> <!-- ---------------------------------------------------- -->
@@ -331,37 +538,37 @@ x = func1(1, 2, func2)
 local a = {}
 
 for i = 1, 100 do
-	a[#a + 1] = i
+    a[#a + 1] = i
 end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
 for k, v in pairs(a) do
-	x = v
+    x = v
 end
 			</div>
 			<div id="subh">Code 2 (Using <a href="https://github.com/LuaJIT/LuaJIT/pull/275">JIT-ed next</a>):</div>
 			<div id="code">
 for k, v in pairs(a) do
-	x = v
+    x = v
 end
 			</div>
 			<div id="subh">Code 3:</div>
 			<div id="code">
 for k, v in ipairs(a) do
-	x = v
+    x = v
 end
 			</div>
 			<div id="subh">Code 4:</div>
 			<div id="code">
 for i = 1, 100 do
-	x = a[i]
+    x = a[i]
 end
 			</div>
 			<div id="subh">Code 5:</div>
 			<div id="code">
 for i = 1, #a do
-	x = a[i]
+    x = a[i]
 end
 			</div>
 			<div id="subh">Code 6:</div>
@@ -369,7 +576,7 @@ end
 local length = #a
 
 for i = 1, length do
-	x = a[i]
+    x = a[i]
 end
 			</div>
 			<div id="subh">Results:</div>
@@ -392,7 +599,7 @@ end
 			<div id="subh">Predefines:</div>
 			<div id="code">
 local a = {
-	foo = "bar"
+    foo = "bar"
 }
 			</div>
 			<div id="subh">Code 1:</div>
@@ -403,11 +610,15 @@ x = a["foo"]
 			<div id="code">
 x = a.foo
 			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. a[x]: 0.0023 (Min: 0.0003, Average: 0.00055) second(s) (100%)<br>
-			&nbsp;&nbsp;2. a.x: 0.01169 (Min: 0.0003, Average: 0.00067) second(s) (509.23%)
+			<div id="subh">Bytecode Results:</div>
+			&nbsp;&nbsp;1. a[x]: 8 instructions total.<br>
+			&nbsp;&nbsp;2. a.x: 8 instructions total.<br>
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. a[x]: 49 instructions total.<br>
+			&nbsp;&nbsp;2. a.x: 49 instructions total.<br>
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference.
+			&nbsp;&nbsp;No difference.<br>
+			&nbsp;&nbsp;<a id="inlcode">.x</a> is a syntactic sugar of <a id="inlcode">[x]</a>, so in bytecode they both are <a id="inlcode">TGETS</a> (A = B[C] where C is string).
 		</div>
 
 		<div id="header1"><div id="ch1">11. Localizing table value for multiple uses</div></div> <!-- ---------------------------------------------------- -->
@@ -417,29 +628,58 @@ x = a.foo
 local a = {}
 
 for i = 1, 100 do
-	a[#a + 1] = {
-		x = 10
-	}
+    a[#a + 1] = {
+        x = 10
+    }
 end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
 for n = 1, 100 do
-	a[n].x = a[n].x + 1
+    a[n].x = a[n].x + 1
 end
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
 for n = 1, 100 do
-	local y = a[n]
-	y.x = y.x + 1
+    local y = a[n]
+    y.x = y.x + 1
 end
 			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. a[n] & a[n]: 0.27431 (Min: 0.18345, Average: 0.1958) second(s) (100%)<br>
-			&nbsp;&nbsp;2. <a id="highlight">local y = a[n] & y & y: 0.33419 (Min: 0.17806, Average: 0.21874) second(s) (121.83%)</a>
+			<div id="subh">Bytecode Results:</div>
+			&nbsp;&nbsp;1. a[n] & a[n]:<br>
+			&nbsp;&nbsp;8 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>UGET</td>
+					<td>Set A to upvalue D</td> 
+					<td>5	0</td>
+					<td>a</td>
+				</tr>
+				<tr>
+					<td>TGETV</td>
+					<td>A = B[C] where C is a usual variable</td> 
+					<td>5	5	4</td>
+					<td></td>
+				</tr>
+			</table>
+			&nbsp;&nbsp;2. local y = a[n] & y & y: 6 instructions total.<br>
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. a[n] & a[n]:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;54 instructions total.
+			<div id="bytecode">
+cmp ebx, +0x38		
+jbe 0x90e60010        ->0
+			</div>
+			&nbsp;&nbsp;2. local y = a[n] & y & y: 52 instructions total.<br>
 			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Sometimes localization is not important
+			&nbsp;&nbsp;No difference. Localizing a[n] saves your 2 instructions, one of them is jump (jbe).
 		</div>
 
 		<div id="header1"><div id="ch1">12. Array insertion</div></div> <!-- ---------------------------------------------------- -->
@@ -567,19 +807,19 @@ local cstring = ffi.cast("const char*", text)
 local char = string.char
 
 local gsubfunc = function(s)
-	x = s
+    x = s
 end
 			</div>
 			<div id="subh">Code 1:</div>
 			<div id="code">
 for i = 1, #text do
-	x = text:sub(i, i)
+    x = text:sub(i, i)
 end
 			</div>
 			<div id="subh">Code 2:</div>
 			<div id="code">
 for k in string.gmatch(text, ".") do
-	x = k
+    x = k
 end
 			</div>
 			<div id="subh">Code 3:</div>
@@ -589,7 +829,7 @@ string.gsub(text, ".", gsubfunc)
 			<div id="subh">Code 4 (FFI):</div>
 			<div id="code">
 for i = 0, #text - 1 do
-	x = char(cstring[i])
+    x = char(cstring[i])
 end
 			</div>
 			<div id="subh">Results:</div>
@@ -608,7 +848,7 @@ end
 local s = ""
 local cstring = ffi.cast("const char*", s)
 ffi.cdef([[
-	size_t strlen ( const char * str );
+    size_t strlen ( const char * str );
 ]])
 local C = ffi.C
 			</div>
@@ -629,10 +869,10 @@ y = cstring[0] == 0
 y = C.strlen(cstring) == 0
 			</div>
 			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. len == 0: 0.00534 (Min: 0.0003, Average: 0.00062) second(s) (100%)<br>
-			&nbsp;&nbsp;2. str == "": 0.00538 (Min: 0.0003, Average: 0.00077) second(s) (100.74%)<br>
-			&nbsp;&nbsp;3. (FFI) y = cstring[0] == 0: 0.00444 (Min: 0.0003, Average: 0.00054) second(s) (83.14%)<br>
-			&nbsp;&nbsp;4. (FFI) <a id="highlight">y = C.strlen(cstring) == 0: 0.01422 (Min: 0.00202, Average: 0.00323) second(s) (266.29%)</a>
+			&nbsp;&nbsp;1. len == 0: 0.00534 (Min: 0.0003, Average: 0.00062) second(s) (120.27%)<br>
+			&nbsp;&nbsp;2. str == "": 0.00538 (Min: 0.0003, Average: 0.00077) second(s) (121.17%)<br>
+			&nbsp;&nbsp;3. (FFI) y = cstring[0] == 0: 0.00444 (Min: 0.0003, Average: 0.00054) second(s) (100%)<br>
+			&nbsp;&nbsp;4. (FFI) <a id="highlight">y = C.strlen(cstring) == 0: 0.01422 (Min: 0.00202, Average: 0.00323) second(s) (320.27%)</a>
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;No difference for Lua strings. Use the second syntax if you don't know the value type. If you use FFI consider using array indexing.
 		</div>
@@ -674,7 +914,7 @@ local t = {bs, bs, bs, bs, bs, bs, bs, bs, bs, bs}
 
 -- I use this function to make sure that LuaJIT doesn't skip the iteration.
 local function use(_)
-	d = _
+    d = _
 end
 			</div>
 			<div id="subh">Code 1:</div>
@@ -699,9 +939,11 @@ use(s)
 			<div id="subh">Code 3:</div>
 			<div id="code">
 s = bs
-for i=1,9 do
-	s = s .. bs
+
+for i = 1, 9 do
+    s = s .. bs
 end
+
 use(s)
 			</div>
 			<div id="subh">Code 4:</div>
@@ -716,12 +958,80 @@ use(s)
 			</div>
 			<div id="subh">Results:</div>
 			&nbsp;&nbsp;1. All concatenations at once: 0.00242 (Min: 0.0003, Average: 0.00054) second(s) (100%)<br>
-			&nbsp;&nbsp;2. Separate concatenations: 0.00766 (Min: 0.0003, Average: 0.00051) second(s) (316.52%)<br>
+			&nbsp;&nbsp;2. Separate concatenations in a row: 0.00766 (Min: 0.0003, Average: 0.00051) second(s) (316.52%)<br>
 			&nbsp;&nbsp;3. <a id="highlight">Separate concatenations in loop: 90.73938 (Min: 74.0794, Average: 77.69551) second(s) (3749561.15%)</a><br>
 			&nbsp;&nbsp;4. table.concat: 20.74941 (Min: 16.40618, Average: 17.86198) second(s) (857413.63%)<br>
 			&nbsp;&nbsp;5. string.format: 0.01353 (Min: 0.0003, Average: 0.00068) second(s) (559.09%)<br>
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp; table.concat should be used in places where concatenation can't be optimized by LuaJIT.
+		</div>
+		<div id="header1"><div id="ch1">19. Constant variables in functions</div></div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local TYPE_bool = "bool"
+function isbool1(b)
+    return type(b) == "bool"
+end
+
+function isbool2(b)
+    return type(b) == TYPE_bool
+end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+x = isbool1(false)
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+x = isbool2(false)
+			</div>
+			<div id="subh">Bytecode Results:</div>
+			&nbsp;&nbsp;1. isbool1:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;19 instructions total.
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>Jump if A (var) = D (str)</td> 
+					<td>ISEQS</td>
+					<td>1	1</td>
+					<td>"bool"</td>
+				</tr>
+			</table>
+			&nbsp;&nbsp;2. isbool2:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;20 instructions total.
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>Set A to upvalue D</td> 
+					<td>UGET</td>
+					<td>2	0</td>
+					<td>TYPE_bool</td>
+				</tr>
+				<tr>
+					<td>Jump if A (var) = D (var)</td> 
+					<td>ISEQV</td>
+					<td>1	2</td>
+					<td></td>
+				</tr>
+			</table>
+			<div id="subh">Bytecode Results:</div>
+			&nbsp;&nbsp;1. isbool1: 51 instructions total.<br>
+			&nbsp;&nbsp;2. isbool2: 51 instructions total.
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp; Both functions has the same amount of operations when compiled.<br>
+			&nbsp;&nbsp; If we look at the bytecode, we can see that <a id="inlcode">isbool2</a> requires to take the upvalue and compare it as <a id="inlcode">var to var</a> when <a id="inlcode">isbool1</a> takes string constant and uses <a id="inlcode">ISEQS</a> (var to str) which may be more efficient for string comparison.<br>
+			&nbsp;&nbsp; I prefer <a id="inlcode">isbool1</a>.
 		</div>
 		<div id="bottom">
 			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">

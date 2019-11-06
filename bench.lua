@@ -57,14 +57,14 @@ local hr = string.rep("-", 36)
 local rt1, rt2 = {}, {}
 
 -- For benchmarking
-local s = math.sin
+
 ----------------------
 function test1(arg)
-	x = math.sin(3.14)
+	
 end
 
 function test2(arg)
-	x = s(3.14)
+	
 end
 
 ----------------------
