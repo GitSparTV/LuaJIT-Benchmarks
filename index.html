@@ -1112,13 +1112,87 @@ x = isbool2(false)
 					<td></td>
 				</tr>
 			</table>
-			<div id="subh">Bytecode Results:</div>
+			<div id="subh">Assembler Results:</div>
 			&nbsp;&nbsp;1. isbool1: 51 instructions total.<br>
 			&nbsp;&nbsp;2. isbool2: 51 instructions total.
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Both functions has the same amount of operations when compiled.<br>
 			&nbsp;&nbsp;If we look at the bytecode, we can see that <a id="inlcode">isbool2</a> requires to take the upvalue and compare it as <a id="inlcode">var to var</a> when <a id="inlcode">isbool1</a> takes string constant and uses <a id="inlcode">ISEQS</a> (var to str) which may be more efficient for string comparison.<br>
 			&nbsp;&nbsp;I prefer <a id="inlcode">isbool1</a>.
+		</div>
+		<div id="header1"><div id="ch1">20. Taking value from "Multiple Return" function</div></div> <!-- ---------------------------------------------------- -->
+		<div id="text1">
+			<div id="subh">Predefines:</div>
+			<div id="code">
+local function funcmret()
+    return 1, 2
+end
+			</div>
+			<div id="subh">Code 1:</div>
+			<div id="code">
+local _, arg2 = funcmret()
+Garg2 = arg2
+			</div>
+			<div id="subh">Code 2:</div>
+			<div id="code">
+local arg2 = select(2, funcmret()) -- Note: select is not localized.
+Garg2 = arg2
+			</div>
+			<div id="subh">Bytecode Results:</div>
+			&nbsp;&nbsp;1. With dummy varables:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp; 12 instructions total.<br>
+			&nbsp;&nbsp;2. select:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp; 16 instructions total. Diff:
+			<table>
+				<tr>
+					<th>Instruction</th> 
+					<th>Description of instruction</th>
+					<th>Operands</th>
+					<th>Source's value</th>
+				</tr>
+				<tr>
+					<td>GGET</td> 
+					<td>A = _G[D] (where D is a string)</td>
+					<td>1	0</td>
+					<td>"select"</td>
+				</tr>
+				<tr>
+					<td>KSHORT</td> 
+					<td>Set A to 16 bit signed integer D</td>
+					<td>2	2</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>CALLM</td> 
+					<td>Call (Multiple results) (Because C function)</td>
+					<td>1	2	1</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>FUNCC</td> 
+					<td>Pseudo-header for C functions</td>
+					<td></td>
+					<td>select</td>
+				</tr>
+			</table>
+			<div id="subh">Assembler Results:</div>
+			&nbsp;&nbsp;1. With dummy varables:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;34 instructions total.<br>
+			&nbsp;&nbsp;2. select:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;41 instructions total. Diff:
+			<div id="bytecode">
+mov rsi, 0xfffffffb00193338
+cmp rsi, [rcx+0x578]
+jnz 0x90e60010        ->0
+cmp dword [rcx+0x574], -0x09
+jnz 0x90e60010        ->0
+cmp dword [rcx+0x570], 0x00193310
+jnz 0x90e60010        ->0
+			</div>
+			<div id="subh">Conclusion:</div>
+			&nbsp;&nbsp;Localizing <a id="inlcode">select</a> won't help you if not compiled. Code with <a id="inlcode">select</a> has table indexing overhead.<br>
+			&nbsp;&nbsp;I suggest using dummy values (Code 1), it may look bad but Lua can optimize usage of local variables.<br>
+			&nbsp;&nbsp;Even if you need to take 20-th value: <a id="inlcode">GSET</a> will use certain registry according to operand <a id="inlcode">A</a> (this is the same as first number in <a id="inlcode">select</a> function).
 		</div>
 		<div id="bottom">
 			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">

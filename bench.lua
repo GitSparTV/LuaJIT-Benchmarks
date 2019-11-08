@@ -57,14 +57,17 @@ local hr = string.rep("-", 36)
 local rt1, rt2 = {}, {}
 
 -- For benchmarking
+local function func2ret()
+	return 1,2
+end
 
 ----------------------
 function test1(arg)
-	
+	local arg1, arg2 = func2ret()
 end
 
 function test2(arg)
-	
+	local arg2 = select(2, func2ret())
 end
 
 ----------------------
