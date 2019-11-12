@@ -28,4 +28,12 @@ function generateTOC(toc) {
 			toc.appendChild(document.createElement("br"));
 		}
 	}
+
+	var type = window.location.hash.substr(1);
+	if (type) {
+		setTimeout(function(){
+    		window.location.hash = "";
+    		window.location.hash = type;
+		}, 1);
+	}
 }

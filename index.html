@@ -128,7 +128,8 @@ end
 			</div>
 			For percentage comparison we use the maximum of 100 takes. Average value may be more precise, so make sure to keep that in mind.<br>
 			For bytecode and assembly comparison I use <a id="inlcode">luajit -jdump=+Arsa asmbench.lua</a>.<br>
-			The total amount of instructions is based on maximum possible amount (Last jump or RET).
+			The total amount of instructions is based on maximum possible amount (Last jump or RET).<br>
+			Bytecode size is used from -jdump, not -bl, so it also counts sub-functions instructions and headers.	
 			<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/asmbench.lua">Script for bytecode test</a>.
 		</div>
 		<div id="header1">Contents</div>
@@ -1117,7 +1118,7 @@ x = isbool2(false)
 			&nbsp;&nbsp;2. isbool2: 51 instructions total.
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Both functions has the same amount of operations when compiled.<br>
-			&nbsp;&nbsp;If we look at the bytecode, we can see that <a id="inlcode">isbool2</a> requires to take the upvalue and compare it as <a id="inlcode">var to var</a> when <a id="inlcode">isbool1</a> takes string constant and uses <a id="inlcode">ISEQS</a> (var to str) which may be more efficient for string comparison.<br>
+			&nbsp;&nbsp;If we look at the bytecode, we can see that <a id="inlcode">isbool2</a> requires to take the upvalue and compare it as <a id="inlcode">var to var</a> when <a id="inlcode">isbool1</a> takes string constant and uses <a id="inlcode">ISEQS</a> (<a id="inlcode">var to str</a>) which may be more efficient for string comparison.<br>
 			&nbsp;&nbsp;I prefer <a id="inlcode">isbool1</a>.
 		</div>
 		<div id="header1"><div id="ch1">20. Taking value from "Multiple Return" function</div></div> <!-- ---------------------------------------------------- -->
