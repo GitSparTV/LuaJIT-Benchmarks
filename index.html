@@ -406,7 +406,7 @@ x = num > y and num or x
 			&nbsp;&nbsp;3. >/< and ... or ...: 34 instructions total.
 			<div id="subh">Conclusion:</div>
 			&nbsp;&nbsp;Even with localized math.max the amount of instructions is the same (using global math.max will add 16 additional instructions).<br>
-			&nbsp;&nbsp;No difference. You can choose anything that suits your code. (Fun fact: Plain Lua max/min are twice slower than >/<)
+			&nbsp;&nbsp;If your code can't be compiled, do not use math.max/min. <a id="inlcode">a and b or c</a> idiom adds additional instruction to compare that the result is not nil, this will be skipped when compiled, otherwise consider using second option.
 		</div>
 
 		<div id="header1"><div id="ch1">5. nil check (if vs a or b)</div></div> <!-- ---------------------------------------------------- -->

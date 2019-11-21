@@ -31,7 +31,7 @@ function generateTOC(toc) {
 
 	var type = window.location.hash.substr(1);
 	if (type) {
-		setTimeout(function(){
+		setTimeout(function() {
     		window.location.hash = "";
     		window.location.hash = type;
 		}, 1);
