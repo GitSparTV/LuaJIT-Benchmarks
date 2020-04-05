@@ -3,1016 +3,563 @@
 		<link href="https://fonts.googleapis.com/css?family=Roboto|Ubuntu+Mono&display=swap" rel="stylesheet">
 		<title>LuaJIT Benchmark Tests</title>
 		<meta name="description" content="LuaJIT Benchmark tests page. Made for understanding the results and for optimization solutions.">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5">
 		<meta name="keywords" content="Lua, LuaJIT, benchmark, benchmark tests, performance, LuaJIT vs Lua, LuaJIT performance, Lua performance">
-		<script src="toc.js" type="text/javascript"></script>
-		<style type="text/css">
-			body {
-				font-family: 'Roboto', sans-serif;
-				margin: 0;
+		<link rel="stylesheet" href="style.css">
+		<script>
+		function OpenTab(evt, tabname) {
+			var i, tabcontent, tablinks;
+			var n = evt.currentTarget.getAttribute("data-testid")
+			tabcontent = document.getElementsByClassName("tabcontent");
+			for (i = 0; i < tabcontent.length; i++) {
+				if (tabcontent[i].getAttribute("data-testid") === n) {
+					tabcontent[i].style.display = "none";
+				}
 			}
-			#g {
-				height: 20em;
-				background-image: linear-gradient(#6078bf, white);
+			tablinks = document.getElementsByClassName("tablinks");
+			for (i = 0; i < tablinks.length; i++) {
+				if (tablinks[i].getAttribute("data-testid") === n) {
+					tablinks[i].className = tablinks[i].className.replace(" active", "");
+				}
 			}
-			#bottom {
-				height: 14em;
-				width: 100%;
+			document.getElementById(tabname).style.display = "block";
+			evt.currentTarget.className += " active";
+		}
+
+		function ToogleDiff(event,name) {
+			if (document.getElementById(name).style.maxHeight === "fit-content") {
+				document.getElementById(name).style.maxHeight = "0px";
+			} else {
+				document.getElementById(name).style.maxHeight = "fit-content";
 			}
-			#header1 {
-				padding-left: 1em; font-size: 3em; padding-top: 1em;
-			}
-			#cheader1 {
-				padding-left: 1em; font-size: 3em; padding-top: 1em;
-			}
-			#text1 {
-				padding-left: 4em; font-size: 1.2em; padding-top: 1em;
-			}
-			#code {
-			    color: black;
-			    background-color: #f9f9f9;
-			    border: 1px solid #ddd;
-				padding: 1em;
-			    line-height: 1.1em;
-			    margin-right: 50%;
-			    margin-left: 1em;
-				margin-top: 1em;
-				margin-bottom: 1em;
-			    font-size: 0.9em;
-			    white-space: pre-wrap;
-				font-family: 'Ubuntu Mono', monospace;
-			}
-			#bytecode {
-			    color: black;
-			    background-color: #EFF1F8;
-			    border: 1px solid #ddd;
-				padding-right: 1em;
-				padding-left: 1em;
-			    line-height: 1.1em;
-			    margin-right: 50%;
-			    margin-left: 1em;
-				margin-top: 1em;
-				margin-bottom: 1em;
-			    font-size: 0.8em;
-			    white-space: pre-wrap;
-				font-family: 'Ubuntu Mono', monospace;
-			}
-			table {
-			    color: black;
-			    background-color: #EFF1F8;
-				padding: 1em;
-			    margin-right: 50%;
-			    margin-left: 1em;
-				margin-top: 1em;
-				margin-bottom: 1em;
-			    white-space: pre-wrap;
-			    border-collapse: collapse;
-			}
-			td, th {
-			  border: 1px solid #26304C;
-			  text-align: center;
-			  padding: 8px;
-			}
-			th {
-				background-color: #cfd6eb;
-			}
-			#inlcode {
-				color: black;
-			    background-color: #f9f9f9;
-			    border: 1px solid #ddd;
-			    border-radius: 2px;
-			    padding: 1px 4px;
-			}
-			#highlight {
-				font-weight: bold;
-				text-decoration: underline;
-				text-decoration-color: red;
-			}
-			#subh {
-				font-weight: bold;
-			}
-			div#toc ul {
-			  list-style-type: none;
-			}
-		</style>
+		}
+		</script>
 	</head>
-	<body onload="generateTOC(document.getElementById('toc'));">
+	<body>
+		<a name="top"></a>
 		<div id="g">
-			<div style="text-align: center; font-size: 6em; padding-top: 2em">LuaJIT Benchmarks</div>
+			<div style="text-align: center; font-size: 34; padding-top: 50">LuaJIT Benchmarks</div>
 		</div>
+<div id="header1">About</div>
+<div id="text">These benchmark tests demonstrate the performance of LuaJIT compiler, LuaJIT interpreter and Lua 5.1.
+LuaJIT stated that globals and locals now has the same performance unlike in plain Lua.
+LuaJIT stated that it's faster than Lua. Even Lua suggests to use LuaJIT for more performance.
+LuaJIT uses its own interpreter and compiler and many other optimizations to improve the performance. But is it really fast?</div><div id="header1">About tests</div>
+<div id="text">This site contains results and conclusions for LuaJIT compiler, LuaJIT interpreter and Lua 5.1.
+LuaJIT interpreter is accounted because it's a useful information for functions in which you 100% sure they won't compile.
+Or maybe you're using embedded LuaJIT 2.0 which aborts on any C function (And FFI is disabled).
+Lua 5.1 is accounted for you decision in what to choose, or just out of curiosity.
+First 14 benchmark tests were taken from <a href="https://springrts.com/wiki/Lua_Performance">this page</a>
+<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/issues/new/">New benchmark tests are welcome.</a>
 
-		<div id="header1" style="padding-top: 3em;">About</div> <!-- ---------------------------------------------------- -->
-		<div id="text1">These benchmark tests demonstrate the changes in LuaJIT performance against the Lua performance.<br>
-						LuaJIT stated that globals and locals now has the same performance unlike in plain Lua,<br>
-						LuaJIT uses its own interpreter and compiler and many other optimizations to improve the performance. But how was it changed from Lua?<br> 
-						First 14 benchmark tests are taken from this page: <a href="https://springrts.com/wiki/Lua_Performance">https://springrts.com/wiki/Lua_Performance</a>.<br>
-						New benchmark tests are welcome. <a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/">GitHub Page</a><br>
-						Specs: Intel i5-6500 3.20 GHz. 64-bit. LuaJIT 2.1.0-beta3.<br>
-						(JIT: ON SSE2 SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse)
-		</div>
-
-		<div id="header1">Benchmark Code</div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/bench.lua">Source code</a><br>
-			Basically we will use this:<br>
-			<div id="code">
-for take = 1, 100 do
+Specs: Intel i5-6500 3.20 GHz. 64-bit. LuaJIT 2.1.0-beta3. (Lua 5.1.4 for plain Lua tests) (LuaJIT 2.0.4 for LuaJIT 2.0 assembler tests)
+(JIT: ON SSE2 SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse)</div><div id="header1">Benchmark Code</div>
+<div id="text"><a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/bench.lua">Source code</a>
+For benchmark tests we use the median of 100 takes of the given amount of iterations of the code.<div id="code">for take = 1, 100 do
     local START = os.clock()
 
-    for times = 1, 1000000 do
+    for times = 1, iterations do
         ...
     end
 
     local END = os.clock()
-end
-			</div>
-			For percentage comparison we use the maximum of 100 takes. Average value may be more precise, so make sure to keep that in mind.<br>
-			For bytecode and assembly comparison I use <a id="inlcode">luajit -jdump=+Arsa asmbench.lua</a>.<br>
-			The total amount of instructions is based on maximum possible amount (Last jump or RET).<br>
-			Bytecode size is used from -jdump, not -bl, so it also counts sub-functions instructions and headers.	
-			<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/asmbench.lua">Script for bytecode test</a>.
-		</div>
-		<div id="header1">Contents</div>
-		<div id="text1"><div id="toc"></div></div>
-		<div id="header1"><div id="ch1">1. Localized variable</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local s = math.sin
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = math.sin(3.14)
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = s(3.14)
-			</div>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. Global (_ENV) variable:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;50 instructions total. Diff:
-			<div id="bytecode">
-mov rsi, 0xfffffffb001761b8		
-cmp rsi, [rcx+0x518]		
-jnz 0x90e60010        ->0		
-cmp dword [rcx+0x514], -0x0c		
-jnz 0x90e60010        ->0		
-mov ebx, [rcx+0x510]		
-cmp dword [rbx+0x1c], +0x1f		
-jnz 0x90e60010        ->0		
-mov edx, [rbx+0x14]		
-mov rsi, 0xfffffffb00176728		
-cmp rsi, [rdx+0x230]		
-jnz 0x90e60010        ->0		
-cmp dword [rdx+0x22c], -0x09		
-jnz 0x90e60010        ->0		
-cmp dword [rdx+0x228], 0x00176700		
-jnz 0x90e60010        ->0
-			</div>
-			&nbsp;&nbsp;2. Localized variable:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;34 instructions total.
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;The difference is in 16 instructions which is almost nothing. (Fun fact: global variable in plain Lua takes <a id="highlight">0.7s</a>) 
-		</div>
-		<div id="header1"><div id="ch1">2. Localized method	(3 calls)</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local class = {
-    test = function() return 1 end
-}
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = class.test()
-y = class.test()
-z = class.test()
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-local test = class.test
-x = test()
-y = test()
-z = test()
-			</div>
-			<div id="subh">Bytecode Results:</div>
-			&nbsp;&nbsp;1. Direct call:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;26 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>1	0</td>
-					<td>class</td>
-				</tr>
-				<tr>
-					<td>TGETS</td>
-					<td>A = B[C] where C is a string</td> 
-					<td>1	1	0</td>
-					<td>"test"</td>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>1	0</td>
-					<td>class</td>
-				</tr>
-				<tr>
-					<td>TGETS</td>
-					<td>A = B[C] where C is a string</td> 
-					<td>1	1	0</td>
-					<td>"test"</td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;2. Localized method call:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;25 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-				</tr>
-				<tr>
-					<td>MOV</td>
-					<td>Copy D to A</td> 
-					<td>2	1</td>
-				</tr>
-				<tr>
-					<td>MOV</td>
-					<td>Copy D to A</td> 
-					<td>2	1</td>
-				</tr>
-				<tr>
-					<td>MOV</td>
-					<td>Copy D to A</td> 
-					<td>2	1</td>
-				</tr>
-			</table>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. Direct call:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;58 instructions total.<br>
-			&nbsp;&nbsp;2. Localized method call:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;59 instructions total. Diff:
-			<div id="bytecode">
-cmp ecx, 0x00176e38
-			</div>
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference when compiled. <a id="inlcode">MOV</a> should be faster. 
-		</div>
-		<div id="header1"><div id="ch1">3. Unpack</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local min = math.min
+end</div>For assembler tests we use <a class="inlcode">luajit -jdump=+Arsa asmbench.lua</a>.
+The total amount of instructions is based on maximum possible amount (Last jump or RET).
+Bytecode size is used from -jdump, not -bl, so it also counts sub-functions instructions and headers.
+<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/blob/master/asmbench.lua">Script for bytecode test</a>.</div><div id="header1">Useful links</div>
+<div id="text"><a href="http://wiki.luajit.org/NYI">Things which are likely to cause NYI aborts from the JIT compiler</a>
+<a href="http://wiki.luajit.org/Numerical-Computing-Performance-Guide">Tips for writing performant Lua code</a>
+<a href="http://wiki.luajit.org/Bytecode-2.0">LuaJIT 2.0 Bytecode reference</a>
+<a href="https://luajit.org/">LuaJIT official site</a></div><div id="header1">Contents</div>
+<div id="text"><a href="#test1">1. Local vs Global</a>
+<a href="#test2">2. Local vs Global table indexing</a>
+<a href="#test3">3. Localized method (3 calls)</a>
+<a href="#test4">4. Unpack</a>
+<a href="#test5">5. Find and return maximum value</a>
+<a href="#test6">6. "not a" vs "a or b"</a>
+<a href="#test7">7. "x ^ 2" vs "x * x" vs "math.pow"</a>
+<a href="#test8">8. "math.fmod" vs "%" operator</a>
+<a href="#test9">9. Predefined function or anonymous function in the argument</a>
+<a href="#test10">10. for loops</a>
+<a href="#test11">11. Localizing table value for multiple usage</a>
+<a href="#test12">12. Array insertion</a>
+<a href="#test13">13. Table with and without pre-allocated size</a>
+<a href="#test14">14. Table initialization before or each time on insertion</a>
+<a href="#test15">15. String split (by character)</a>
+<a href="#test16">16. Empty string check</a>
+<a href="#test17">17. C array size (FFI)</a>
+<a href="#test18">18. String concatenation</a>
+<a href="#test19">19. String in a function</a>
+<a href="#test20">20. Taking a value from a function with multiple returns</a>
+</div><div id="header1"><div id="test1">1. Local vs Global<a class="headinganchor" href="#test1">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local t = type</div><div id="subh">Code 1:</div><div id="code">type(3)</div><div id="subh">Code 2:</div><div id="code">t(3)</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet1">
+  <button data-testid="1" class="tablinks" onclick="OpenTab(event, 'jiton_test1')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="1" class="tablinks" onclick="OpenTab(event, 'jitoff_test1')">LuaJIT Interpreter</button><button data-testid="1" class="tablinks" onclick="OpenTab(event, 'plain_test1')">Lua 5.1</button></div><div data-testid="1" id="jiton_test1" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li><a id="highlight">Global: 29 instructions total.</a></li><li>Local: 18 instructions total.<div class="wrap-collabsible">
+<input id="collapsible1" class="toggle" type="checkbox" onclick="ToogleDiff(event,'diff1')">
+<label for="collapsible1" class="lbl-toggle">Diff</label>
+</div><div class="collapsible-content" id="diff1">
+<div id="bytecode">  mov dword [0x3e2d0410], 0x1	
+  movsd xmm7, [rdx+0x40]	
+  cvttsd2si eax, xmm7	
+  xorps xmm6, xmm6	
+  cvtsi2sd xmm6, eax	
+  ucomisd xmm7, xmm6	
+  jnz 0x7ffa543c0010        ->0	
+  jpe 0x7ffa543c0010        ->0	
+  cmp eax, 0x7ffffffe	
+  jg 0x7ffa543c0010 ->0	
+  cvttsd2si edi, [rdx+0x38]	
+  cmp dword [rdx+0x14], -0x09	
+  jnz 0x7ffa543c0010        ->0	
+  cmp dword [rdx+0x10], 0x3e2d8228	
+<a class="delete">- jnz 0x7ffa543c0010        ->0	</a>
+<a class="delete">- mov edx, [0x3e2d8230]	</a>
+<a class="delete">- cmp dword [rdx+0x1c], +0x3f	</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0	</a>
+<a class="delete">- mov ecx, [rdx+0x14]	</a>
+<a class="delete">- mov rsi, 0xfffffffb3e2d2f88	</a>
+<a class="delete">- cmp rsi, [rcx+0x5a8]	</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0	</a>
+<a class="delete">- cmp dword [rcx+0x5a4], -0x09	</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0	</a>
+<a class="delete">- cmp dword [rcx+0x5a0], 0x3e2d2ef0	</a>
+  jnz 0x7ffa543c0010        ->0	
+  add edi, +0x01	
+  cmp edi, eax	
+  jg 0x7ffa543c0014 ->1</div>
+</div></li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Each global lookup can cost around 11 instructions. They both run almost on the same speed, but this benchmark tests only one global.
+This is still a good practice to localize all variables you need.</div></div><div data-testid="1" id="jitoff_test1" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Global</td><td>0.24571 sec(s)</td><td>0.23929</td><td>0.29617</td><td>0.24856</td><td>(102.83%)</td></tr><tr><td>2</td><td>Local</td><td>0.23894 sec(s)</td><td>0.22918</td><td>0.32741</td><td>0.24434</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">JIT matches the performance of globals and upvalues. This is a good practice to localize all variables you need, upvalues are still faster.</div></div><div data-testid="1" id="plain_test1" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Global</td><td>0.9605 sec(s)</td><td>0.937</td><td>1.075</td><td>0.97355</td><td>(111.42%)</td></tr><tr><td>2</td><td>Local</td><td>0.862 sec(s)</td><td>0.845</td><td>0.939</td><td>0.86418</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Upvalues are faster than globals.</div></div></div><div id="header1"><div id="test2">2. Local vs Global table indexing<a class="headinganchor" href="#test2">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local s = math.sin</div><div id="subh">Code 1:</div><div id="code">math.sin(3.14)</div><div id="subh">Code 2:</div><div id="code">s(3.14)</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet2">
+  <button data-testid="2" class="tablinks" onclick="OpenTab(event, 'jiton_test2')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="2" class="tablinks" onclick="OpenTab(event, 'jitoff_test2')">LuaJIT Interpreter</button><button data-testid="2" class="tablinks" onclick="OpenTab(event, 'plain_test2')">Lua 5.1</button></div><div data-testid="2" id="jiton_test2" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li><a id="highlight">Global table indexing: 38 instructions total.</a></li><li>Local: 18 instructions total.<div class="wrap-collabsible">
+<input id="collapsible2" class="toggle" type="checkbox" onclick="ToogleDiff(event,'diff2')">
+<label for="collapsible2" class="lbl-toggle">Diff</label>
+</div><div class="collapsible-content" id="diff2">
+<div id="bytecode">  mov dword [0x24660410], 0x1
+  movsd xmm7, [rdx+0x40]
+  cvttsd2si eax, xmm7
+  xorps xmm6, xmm6
+  cvtsi2sd xmm6, eax
+  ucomisd xmm7, xmm6
+  jnz 0x7ffa543c0010        ->0
+  jpe 0x7ffa543c0010        ->0
+  cmp eax, 0x7ffffffe
+  jg 0x7ffa543c0010 ->0
+  cvttsd2si edi, [rdx+0x38]
+  cmp dword [rdx+0x14], -0x09
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- cmp dword [rdx+0x10], 0x2467f788</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- mov ebp, [0x2467f790]</a>
+<a class="delete">- cmp dword [rbp+0x1c], +0x3f</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- mov ebx, [rbp+0x14]</a>
+<a class="delete">- mov rsi, 0xfffffffb24665fd8</a>
+<a class="delete">- cmp rsi, [rbx+0x518]</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- cmp dword [rbx+0x514], -0x0c</a>
+  jnz 0x7ffa543c0010        ->0
+<a class="insert">+ cmp dword [rdx+0x18], 0x2466aca0</a>
+<a class="delete">- mov edx, [rbx+0x510]</a>
+<a class="delete">- cmp dword [rdx+0x1c], +0x1f</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- mov ecx, [rdx+0x14]</a>
+<a class="delete">- mov rsi, 0xfffffffb24666548</a>
+<a class="delete">- cmp rsi, [rcx+0x230]</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- cmp dword [rcx+0x22c], -0x09</a>
+<a class="delete">- jnz 0x7ffa543c0010        ->0</a>
+<a class="delete">- cmp dword [rcx+0x228], 0x24666520</a>
+  jnz 0x7ffa543c0010        ->0
+  add edi, +0x01
+  cmp edi, eax
+  jg 0x7ffa543c0014 ->1</div>
+</div></li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">As the first test concluded, each table indexing can cost around 11 additional instructions. Localizing <a class="inlcode">math</a> table won't help much. Localize your variables.</div></div><div data-testid="2" id="jitoff_test2" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Global table indexing</td><td>0.36948 sec(s)</td><td>0.36357</td><td>0.3908</td><td>0.37024</td><td>(146.27%)</td></tr><tr><td>2</td><td>Local</td><td>0.25259 sec(s)</td><td>0.24956</td><td>0.26611</td><td>0.25344</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Localizing exact value will get you more performance.</div></div><div data-testid="2" id="plain_test2" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Global table indexing</td><td>0.9335 sec(s)</td><td>0.884</td><td>1.039</td><td>0.93893</td><td>(120.84%)</td></tr><tr><td>2</td><td>Local</td><td>0.7725 sec(s)</td><td>0.733</td><td>0.889</td><td>0.77743</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Localizing exact value will get you more performance.</div></div></div><div id="header1"><div id="test3">3. Localized method (3 calls)<a class="headinganchor" href="#test3">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local class = {
+	test = function() return 1 end
+}</div><div id="subh">Code 1:</div><div id="code">class.test()
+class.test()
+class.test()</div><div id="subh">Code 2:</div><div id="code">local test = class.test
+test()
+test()
+test()</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet3">
+  <button data-testid="3" class="tablinks" onclick="OpenTab(event, 'jiton_test3')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="3" class="tablinks" onclick="OpenTab(event, 'jitoff_test3')">LuaJIT Interpreter</button><button data-testid="3" class="tablinks" onclick="OpenTab(event, 'plain_test3')">Lua 5.1</button></div><div data-testid="3" id="jiton_test3" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>Direct call: 35 instructions total.</li><li>Localized call: 35 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">LuaJIT compiles them with the same performance.
+However, LuaJIT suggests not to second-guess the JIT compiler, because unnecessary localization can create more complicated code.
+Localizing <a class="inlcode">local c = a+b</a> for <a class="inlcode">z = x[a+b] + y[a+b]</a> is redundant. JIT perfectly compiles such code as <a class="inlcode">a[i][j] = a[i][j] * a[i][j+1]</a>.</div></div><div data-testid="3" id="jitoff_test3" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Direct call</td><td>0.5611 sec(s)</td><td>0.55</td><td>0.6099</td><td>0.56474</td><td>(120.64%)</td></tr><tr><td>2</td><td>Localized call</td><td>0.46508 sec(s)</td><td>0.4563</td><td>0.5834</td><td>0.46996</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Unlike JIT compiler, JIT interpreter still runs faster with localized functions due to <a class="inlcode">MOV</a> instruction.</div></div><div data-testid="3" id="plain_test3" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Direct call</td><td>1.6065 sec(s)</td><td>1.516</td><td>1.843</td><td>1.62501</td><td>(120.38%)</td></tr><tr><td>2</td><td>Localized call</td><td>1.3345 sec(s)</td><td>1.297</td><td>1.647</td><td>1.35458</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Localized function speeds up the code due to <a class="inlcode">MOV</a> instruction.</div></div></div><div id="header1"><div id="test4">4. Unpack<a class="headinganchor" href="#test4">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local min = math.min
 local unpack = unpack
 local a = {100, 200, 300, 400}
 
 local function unpack4(a)
-    return a[1], a[2], a[3], a[4]
-end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = min(a[1], a[2], a[3], a[4])
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = min(unpack(a))
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-x = min(unpack4(a))
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. a[n]: 0.00117 (Min: 0.0003, Average: 0.00042) second(s) (100%)<br>
-			&nbsp;&nbsp;2. <a id="highlight">unpack(a): 0.10429 (Min: 0.04729, Average: 0.05921) second(s) (8913.67%)</a><br>
-			&nbsp;&nbsp;3. unpack4(a): 0.00296 (Min: 0.0003, Average: 0.00045) second(s) (253.26%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Don't use <a id="inlcode">unpack()</a> when performance matters. (Fun fact: Plain Lua unpack() scored <a id="highlight">1.093s (225%)</a>)
-		</div>
+	return a[1], a[2], a[3], a[4]
+end</div><div id="subh">Code 1:</div><div id="code">min(a[1], a[2], a[3], a[4])</div><div id="subh">Code 2:</div><div id="code">min(unpack(a))</div><div id="subh">Code 3:</div><div id="code">min(unpack4(a))</div><div id="subh">Results (100M iterations):</div><div class="tab" id="property_sheet4">
+  <button data-testid="4" class="tablinks" onclick="OpenTab(event, 'jiton_test4')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="4" class="tablinks" onclick="OpenTab(event, 'jitoff_test4')">LuaJIT Interpreter</button><button data-testid="4" class="tablinks" onclick="OpenTab(event, 'plain_test4')">Lua 5.1</button></div><div data-testid="4" id="jiton_test4" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Indexing and unpack4</td><td>0.03403 sec(s)</td><td>0.0316</td><td>0.05607</td><td>0.03531</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>unpack</td><td>4.71555 sec(s)</td><td>4.54112</td><td>5.6054</td><td>4.75909</td><td>(13858.80%) (138 times slower)</td></tr></table></div><div id="subh">Assembler Results:</div><ol><li>Indexing: 36 instructions total.</li><li><a id="highlight">unpack: 46 instructions total.</a> <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a><a id="redinline" class="inlcode">Fallbacks to interpreter on LuaJIT 2.1</a><div class="wrap-collabsible">
+<input id="collapsible4" class="toggle" type="checkbox" onclick="ToogleDiff(event,'diff4')">
+<label for="collapsible4" class="lbl-toggle">Diff</label>
+</div><div class="collapsible-content" id="diff4">
+<div id="bytecode">  mov dword [0x30100410], 0x1
+<a class="insert">+ movsd xmm6, [0x30149c60]</a>
+  movsd xmm7, [rdx+0x58]
+  cvttsd2si eax, xmm7
+  xorps xmm6, xmm6
+  cvtsi2sd xmm6, eax
+  ucomisd xmm7, xmm6
+  jnz 0x7ffa538b0010        ->0
+  jpe 0x7ffa538b0010        ->0
+  cmp eax, 0x7ffffffe
+  jg 0x7ffa538b0010 ->0
+  cvttsd2si edi, [rdx+0x50]
+  cmp dword [rdx+0x2c], -0x09
+  jnz 0x7ffa538b0010        ->0
+  cmp dword [rdx+0x28], 0x3010d498
+  jnz 0x7ffa538b0010        ->0
+  mov ebx, [0x30110c60]
+  add ebx, -0x18
+  cmp ebx, edx
+  jnz 0x7ffa538b0010        ->0
+  cmp dword [rdx+0x1c], -0x0c
+  jnz 0x7ffa538b0010        ->0
+<a class="delete">- mov edx, [rdx+0x18]</a>
+<a class="delete">- cmp dword [rdx+0x18], +0x04</a>
+<a class="delete">- jbe 0x7ffa538b0010        ->0</a>
+<a class="delete">- mov ecx, [rdx+0x8]</a>
+<a class="delete">- cmp dword [rcx+0xc], 0xfffeffff</a>
+<a class="delete">- jnb 0x7ffa538b0010        ->0</a>
+<a class="delete">- cmp dword [rcx+0x14], 0xfffeffff</a>
+<a class="delete">- jnb 0x7ffa538b0010        ->0</a>
+<a class="delete">- cmp dword [rcx+0x1c], 0xfffeffff</a>
+<a class="delete">- jnb 0x7ffa538b0010        ->0</a>
+<a class="delete">- cmp dword [rcx+0x24], 0xfffeffff</a>
+<a class="delete">- jnb 0x7ffa538b0010        ->0</a>
+<a class="delete">- add edi, +0x01</a>
+<a class="delete">- cmp edi, eax</a>
+<a class="delete">- jg 0x7ffa538b0014 ->1</a>
+<a class="insert">+ xorps xmm7, xmm7</a>
+<a class="insert">+ cvtsi2sd xmm7, esi</a>
+<a class="insert">+ mov eax, [0x301004b0]</a>
+<a class="insert">+ mov eax, [rax+0x20]</a>
+<a class="insert">+ sub eax, edx</a>
+<a class="insert">+ cmp eax, 0xa0</a>
+<a class="insert">+ jb 0x7ffa538b0014 ->1</a>
+<a class="insert">+ mov dword [rdx+0x94], 0xfffffff4</a>
+<a class="insert">+ mov [rdx+0x90], edi</a>
+<a class="insert">+ mov dword [rdx+0x8c], 0x30110bdc</a>
+<a class="insert">+ mov dword [rdx+0x88], 0x301032c8</a>
+<a class="insert">+ mov dword [rdx+0x84], 0xfffffff7</a>
+<a class="insert">+ mov dword [rdx+0x80], 0x30106ae0</a>
+<a class="insert">+ movsd [rdx+0x78], xmm6</a>
+<a class="insert">+ mov dword [rdx+0x74], 0x30111748</a>
+<a class="insert">+ mov dword [rdx+0x70], 0x3010c7a8</a>
+<a class="insert">+ movsd [rdx+0x68], xmm7</a>
+<a class="insert">+ movsd [rdx+0x50], xmm7</a>
+<a class="insert">+ add edx, 0x90</a>
+<a class="insert">+ mov eax, 0x2</a>
+<a class="insert">+ mov esi, 0x301004a8</a>
+<a class="insert">+ mov ebx, 0x30100fe0</a>
+<a class="insert">+ jmp 0x7ffa297d43c1</a></div>
+</div></li><li>unpack4: 36 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Avoid using <a class="inlcode">unpack</a> for small table with known size. As an alternative you can use this function:<div id="code">do
+	local concat = table.concat
+	local loadstring = loadstring
 
+	function createunpack(n)
+		local ret = {"local t = ... return "}
 
+		for k = 1, n do
+			ret[1 + (k-1) * 4] = "t["
+			ret[2 + (k-1) * 4] = k
+			ret[3 + (k-1) * 4] = "]"
+			if k ~= n then ret[4 + (k-1) * 4] = "," end
+		end
 
-		<div id="header1"><div id="ch1">4. Find and return maximum value</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local max = math.max
+		return loadstring(concat(ret))
+	end
+end</div>This function has 1 limitation. The maximum number of returned values is 248. The limit of LuaJIT <a class="inlcode">unpack</a> function is 7999 with default settings.
+At least <a class="inlcode">createunpack</a> can create JIT-compiled unpack (<a class="inlcode">unpack4</a> is basically <a class="inlcode">createunpack(4)</a>)</div></div><div data-testid="4" id="jitoff_test4" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Indexing</td><td>3.73678 sec(s)</td><td>3.60006</td><td>4.61773</td><td>3.78408</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>unpack</td><td>5.56231 sec(s)</td><td>5.12473</td><td>6.89518</td><td>5.69063</td><td>(148.85%)</td></tr><tr><td>3</td><td>unpack4</td><td>4.17394 sec(s)</td><td>4.12066</td><td>4.90567</td><td>4.34065</td><td>(111.69%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Avoid using <a class="inlcode">unpack</a> for small table with known size. As an alternative you can use the function mentioned on LuaJIT tab.</div></div><div data-testid="4" id="plain_test4" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Indexing</td><td>12.272 sec(s)</td><td>11.929</td><td>14.207</td><td>12.38047</td><td>(115.97%)</td></tr><tr><td>2</td><td>unpack</td><td>10.5815 sec(s)</td><td>10</td><td>11.586</td><td>10.56572</td><td>(100%)</td></tr><tr><td>3</td><td>unpack4</td><td>14.855 sec(s)</td><td>14.491</td><td>18.836</td><td>15.07444</td><td>(140.38%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Any method is ok, <a class="inlcode">unpack4</a> is the slowest probably because of the function call overhead.</div></div></div><div id="header1"><div id="test5">5. Find and return maximum value<a class="headinganchor" href="#test5">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local max = math.max
 local num = 100
-local y = 0
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = max(num, y)
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-if (num > y) then
-    x = num
-end
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-x = num > y and num or x
-			</div>
-			<div id="subh">Bytecode Results:</div>
-			&nbsp;&nbsp;1. math.[max/min]:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;11 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>1	0</td>
-					<td>max</td>
-				</tr>
-				<tr>
-					<td>CALL</td>
-					<td>Call</td> 
-					<td>1	2	3</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>FUNCC</td>
-					<td>Pseudo-header for C functions</td> 
-					<td></td>
-					<td>math.max</td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;2. if [>/<] then:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;11 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>ISGE</td>
-					<td>Jump if A ≥ D</td> 
-					<td>2	1</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>JMP</td>
-					<td>Jump</td> 
-					<td>1</td>
-					<td>=> 0007 (Jumps to the end of the function)</td>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>1	0</td>
-					<td>num</td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;3. >/< and ... or ...:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;13 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>IST</td>
-					<td>Jump if D is true</td> 
-					<td>1</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>JMP</td>
-					<td>Jump</td> 
-					<td>2</td>
-					<td>=> 0009 (Jumps to "x = result")</td>
-				</tr>
-			</table>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. math.[max/min]: 34 instructions total.<br>
-			&nbsp;&nbsp;2. if [>/<] then: 34 instructions total.<br>
-			&nbsp;&nbsp;3. >/< and ... or ...: 34 instructions total.
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Even with localized math.max the amount of instructions is the same (using global math.max will add 16 additional instructions).<br>
-			&nbsp;&nbsp;If your code can't be compiled, do not use math.max/min. <a id="inlcode">a and b or c</a> idiom adds additional instruction to compare that the result is not nil, this will be skipped when compiled, otherwise consider using second option.
-		</div>
-
-		<div id="header1"><div id="ch1">5. nil check (if vs a or b)</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local y
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-if y == nil then
-    x = 1
+local y = 0</div><div id="subh">Code 1:</div><div id="code">local x = max(num, y)</div><div id="subh">Code 2:</div><div id="code">if (num > y) then
+	local x = num
+end</div><div id="subh">Code 3:</div><div id="code">local x = num > y and num or x</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet5">
+  <button data-testid="5" class="tablinks" onclick="OpenTab(event, 'jiton_test5')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="5" class="tablinks" onclick="OpenTab(event, 'jitoff_test5')">LuaJIT Interpreter</button><button data-testid="5" class="tablinks" onclick="OpenTab(event, 'plain_test5')">Lua 5.1</button></div><div data-testid="5" id="jiton_test5" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>math.min: 18 instructions total.</li><li>if (num > y) then: 18 instructions total.</li><li>a and b or c: 18 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">LuaJIT compiles them with the same performance.</div></div><div data-testid="5" id="jitoff_test5" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>math.min</td><td>0.23708 sec(s)</td><td>0.22686</td><td>0.28223</td><td>0.23841</td><td>(147.10%)</td></tr><tr><td>2</td><td>if (num > y) then</td><td>0.16116 sec(s)</td><td>0.15814</td><td>0.169</td><td>0.16173</td><td>(100%)</td></tr><tr><td>3</td><td>a and b or c</td><td>0.18716 sec(s)</td><td>0.18291</td><td>0.19907</td><td>0.18795</td><td>(116.13%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;"><a class="inlcode">math.min</a> has a function overhead, which probably makes it slower.</div></div><div data-testid="5" id="plain_test5" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>math.min</td><td>0.647 sec(s)</td><td>0.621</td><td>0.731</td><td>0.65725</td><td>(134.93%)</td></tr><tr><td>2</td><td>if (num > y) then</td><td>0.4795 sec(s)</td><td>0.464</td><td>0.56</td><td>0.48323</td><td>(100%)</td></tr><tr><td>3</td><td>a and b or c</td><td>0.528 sec(s)</td><td>0.501</td><td>0.726</td><td>0.54099</td><td>(110.11%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;"><a class="inlcode">math.min</a> has a function overhead, which probably makes it slower.</div></div></div><div id="header1"><div id="test6">6. "not a" vs "a or b"<a class="headinganchor" href="#test6">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local y</div><div id="subh">Code 1:</div><div id="code">if not y then
+    local x = 1
 else
-    x = y
+    local x = y
+end</div><div id="subh">Code 2:</div><div id="code">local x = y or 1</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet6">
+  <button data-testid="6" class="tablinks" onclick="OpenTab(event, 'jiton_test6')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="6" class="tablinks" onclick="OpenTab(event, 'jitoff_test6')">LuaJIT Interpreter</button><button data-testid="6" class="tablinks" onclick="OpenTab(event, 'plain_test6')">Lua 5.1</button></div><div data-testid="6" id="jiton_test6" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>if: 24 instructions total.</li><li>a or b: 24 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">LuaJIT compiles them with the same performance.</div></div><div data-testid="6" id="jitoff_test6" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>if</td><td>0.13572 sec(s)</td><td>0.13033</td><td>0.19183</td><td>0.13831</td><td>(100%)</td></tr><tr><td>2</td><td>a or b</td><td>0.13608 sec(s)</td><td>0.12298</td><td>0.23668</td><td>0.13989</td><td>(100.26%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;"><a class="inlcode">a or b</a> should be faster due to unary test and copy instructions <a class="inlcode">ISTC</a> and <a class="inlcode">ISFC</a>.</div></div><div data-testid="6" id="plain_test6" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>if</td><td>0.398 sec(s)</td><td>0.382</td><td>0.484</td><td>0.40146</td><td>(112.11%)</td></tr><tr><td>2</td><td>a or b</td><td>0.355 sec(s)</td><td>0.349</td><td>0.367</td><td>0.35508</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;"><a class="inlcode">a or b</a> should be faster due to <a class="inlcode">TESTSET</a> instruction.</div></div></div><div id="header1"><div id="test7">7. "x ^ 2" vs "x * x" vs "math.pow"<a class="headinganchor" href="#test7">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local x = 10
+local pow = math.pow</div><div id="subh">Code 1:</div><div id="code">local y = x ^ 2</div><div id="subh">Code 2:</div><div id="code">local y = x * x</div><div id="subh">Code 3:</div><div id="code">local y = pow(x, 2)</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet7">
+  <button data-testid="7" class="tablinks" onclick="OpenTab(event, 'jiton_test7')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="7" class="tablinks" onclick="OpenTab(event, 'jitoff_test7')">LuaJIT Interpreter</button><button data-testid="7" class="tablinks" onclick="OpenTab(event, 'plain_test7')">Lua 5.1</button></div><div data-testid="7" id="jiton_test7" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>x ^ 2: 18 instructions total.</li><li>x * x: 18 instructions total.</li><li>math.pow: 18 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">LuaJIT compiles them with the same performance.</div></div><div data-testid="7" id="jitoff_test7" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>x ^ 2</td><td>0.60192 sec(s)</td><td>0.5671</td><td>0.85234</td><td>0.61451</td><td>(442.13%) (4 times slower)</td></tr><tr><td>2</td><td>x * x</td><td>0.13614 sec(s)</td><td>0.13237</td><td>0.19182</td><td>0.13845</td><td>(100%)</td></tr><tr><td>3</td><td>math.pow</td><td>0.69741 sec(s)</td><td>0.59753</td><td>0.95067</td><td>0.70204</td><td>(512.26%) (5 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Use multiply instead of power if you know the exact exponent. <a class="inlcode">math.pow</a> has a function overhead.</div></div><div data-testid="7" id="plain_test7" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>x ^ 2</td><td>1.044 sec(s)</td><td>1.023</td><td>1.242</td><td>1.05641</td><td>(269.07%) (2 times slower)</td></tr><tr><td>2</td><td>x * x</td><td>0.388 sec(s)</td><td>0.376</td><td>0.456</td><td>0.39083</td><td>(100%)</td></tr><tr><td>3</td><td>math.pow</td><td>1.3125 sec(s)</td><td>1.211</td><td>1.529</td><td>1.32576</td><td>(338.27%) (3 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Use multiply instead of power if you know the exact exponent. <a class="inlcode">math.pow</a> has a function overhead.</div></div></div><div id="header1"><div id="test8">8. "math.fmod" vs "%" operator<a class="headinganchor" href="#test8">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local fmod = math.fmod
+
+local function jit_fmod(a, b)
+	if b < 0 then b = -b end
+	if a < 0 then
+		return -(-a % b)
+	else
+		return a % b
+	end
+end</div><div id="subh">Code 1:</div><div id="code">local x = fmod(times, 30)</div><div id="subh">Code 2:</div><div id="code">local x = (times % 30)</div><div id="subh">Code 3:</div><div id="code">local x = jit_fmod(times, 30)</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet8">
+  <button data-testid="8" class="tablinks" onclick="OpenTab(event, 'jiton_test8')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="8" class="tablinks" onclick="OpenTab(event, 'jitoff_test8')">LuaJIT Interpreter</button><button data-testid="8" class="tablinks" onclick="OpenTab(event, 'plain_test8')">Lua 5.1</button></div><div data-testid="8" id="jiton_test8" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li><a id="highlight">fmod: 55 instructions total.</a> <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a><a id="yellowinline" class="inlcode">Stitches on LuaJIT 2.1</a></li><li>%: 18 instructions total.</li><li>JITed fmod: 20 instructions total.<div class="wrap-collabsible">
+<input id="collapsible8" class="toggle" type="checkbox" onclick="ToogleDiff(event,'diff8')">
+<label for="collapsible8" class="lbl-toggle">Diff</label>
+</div><div class="collapsible-content" id="diff8">
+<div id="bytecode">  mov dword [0x2add0410], 0x4
+  movsd xmm7, [rdx+0x48]
+  cvttsd2si eax, xmm7
+  xorps xmm6, xmm6
+  cvtsi2sd xmm6, eax
+  ucomisd xmm7, xmm6
+  jnz 0x7ffa543c0010        ->0
+  jpe 0x7ffa543c0010        ->0
+  cmp eax, 0x7ffffffe
+  jg 0x7ffa543c0010 ->0
+  cvttsd2si edi, [rdx+0x40]
+  cmp dword [rdx+0x24], -0x09
+  jnz 0x7ffa543c0010        ->0
+  cmp dword [rdx+0x20], 0x2adf2c00
+  jnz 0x7ffa543c0010        ->0
+<a class="insert">+ test edi, edi</a>
+<a class="insert">+ jl 0x7ffa543c0014 ->1</a>
+  add edi, +0x01
+  cmp edi, eax
+  jg 0x7ffa543c0018 ->2</div>
+</div></li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>fmod</td><td>0.2961 sec(s)</td><td>0.2885</td><td>0.4984</td><td>0.30364</td><td>(7670.98%) (76 times slower)</td></tr><tr><td>2</td><td>% and JITed fmod</td><td>0.00386 sec(s)</td><td>0.00305</td><td>0.00643</td><td>0.00401</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Use <a class="inlcode">%</a> for positive modulo. For negative or mixed modulo use JITed fmod.</div></div><div data-testid="8" id="jitoff_test8" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>fmod</td><td>0.33687 sec(s)</td><td>0.3147</td><td>0.42487</td><td>0.34024</td><td>(239.59%) (2 times slower)</td></tr><tr><td>2</td><td>%</td><td>0.1406 sec(s)</td><td>0.13166</td><td>0.21037</td><td>0.14226</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>3</td><td>JITed fmod</td><td>0.35584 sec(s)</td><td>0.34378</td><td>0.52199</td><td>0.36319</td><td>(253.07%) (2 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">JITed fmod solves compilation problem but it's slower in interpreter mode</div></div><div data-testid="8" id="plain_test8" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>fmod</td><td>0.7055 sec(s)</td><td>0.657</td><td>0.842</td><td>0.7135</td><td>(182.77%)</td></tr><tr><td>2</td><td>%</td><td>0.386 sec(s)</td><td>0.374</td><td>0.471</td><td>0.39029</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>3</td><td>JITed fmod</td><td>0.858 sec(s)</td><td>0.812</td><td>1.127</td><td>0.8753</td><td>(222.27%) (2 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">JITed fmod is not recommended for plain Lua. Use module operator for positive numbers and <a class="inlcode">math.fmod</a> for negative and mixed.</div></div></div><div id="header1"><div id="test9">9. Predefined function or anonymous function in the argument<a class="headinganchor" href="#test9">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local func1 = function(a, b, func) return func(a + b) end
+local func2 = function(a) return a * 2 end</div><div id="subh">Code 1:</div><div id="code">local x = func1(1, 2, function(a) return a * 2 end)</div><div id="subh">Code 2:</div><div id="code">local x = func1(1, 2, func2)</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet9">
+  <button data-testid="9" class="tablinks" onclick="OpenTab(event, 'jiton_test9')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="9" class="tablinks" onclick="OpenTab(event, 'jitoff_test9')">LuaJIT Interpreter</button><button data-testid="9" class="tablinks" onclick="OpenTab(event, 'plain_test9')">Lua 5.1</button></div><div data-testid="9" id="jiton_test9" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li><a id="highlight">Function in argument: </a> <a id="redinline" class="inlcode">NYI on LuaJIT 2.1</a></li><li>Localized function: 18 instructions total.</li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Function in argument</td><td>0.61696 sec(s)</td><td>0.57184</td><td>0.81876</td><td>0.62018</td><td>(18791.11%) (187 times slower)</td></tr><tr><td>2</td><td>Localized function</td><td>0.00328 sec(s)</td><td>0.00307</td><td>0.00733</td><td>0.00354</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If it's possible, localize your function and re-use it. If you need to provide a local to the closure try different approach of passing values. Simple example is changing state iterator to stateless.
+Example of different value passing:<div id="code">function func()
+	local a, b = 50, 10
+
+	timer.Simple(5, function()
+		print(a + b)
+	end)
+end</div>In this example <a class="inlcode">timer.Simple</a> can't pass arguments to the function, we can change the style of value passing from function upvalues to main chunk upvalues:<div id="code">local Ua, Ub
+
+local function printAplusB()
+	print(Ua + Ub)
 end
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = y or 1
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. if nil:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;11 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>ISNEP</td>
-					<td>Jump if A (var) ≠ D (primitive)</td> 
-					<td>1	0</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>JMP</td>
-					<td>Jump</td> 
-					<td>1</td>
-					<td>=> 0009 (Jumps to the end of the function)</td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;2. a or b:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;10 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-				</tr>
-				<tr>
-					<td>IST</td>
-					<td>Jump if D is true</td> 
-					<td>1</td>
-				</tr>
-			</table>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. if nil: 39 instructions total.<br>
-			&nbsp;&nbsp;2. a or b: 39 instructions total.
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;In assembly form they become identical, that is, no difference.<br>
-			&nbsp;&nbsp;But, don't forget if <a id="inlcode">a = false</a> and <a id="inlcode">b = true</a>, it chooses <a id="inlcode">b</a>.<br>
-			&nbsp;&nbsp;The same is in <a id="inlcode">a and b or c</a>: If <a id="inlcode">a = true</a> but <a id="inlcode">b = false</a> it chooses <a id="inlcode">c</a>.
-		</div>
 
-		<div id="header1"><div id="ch1">6. x^2 vs x*x vs math.pow</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local x = 10
-local pow = math.pow
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-y = x ^ 2
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-y = x * x
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-y = pow(x, 2)
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. x^2:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;9 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-				</tr>
-				<tr>
-					<td>KSHORT</td>
-					<td>Set A to 16 bit signed integer D</td> 
-					<td>2	2</td>
-				</tr>
-				<tr>
-					<td>POW</td>
-					<td>A = B ^ C</td> 
-					<td>1	1	2</td>
-				</tr>        
-			</table>
-			&nbsp;&nbsp;2. x*x:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;9 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>2	0</td>
-					<td>x</td>
-				</tr>
-				<tr>
-					<td>MULVV</td>
-					<td>A = B * C</td> 
-					<td>1	1	2</td>
-					<td></td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;3. math.pow:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;<a id="highlight">12 instructions total</a>. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>1	0</td>
-					<td>pow</td>
-				</tr>
-				<tr>
-					<td>KSHORT</td>
-					<td>Set A to 16 bit signed integer D</td> 
-					<td>3	2</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>CALL</td>
-					<td>Call</td> 
-					<td>1	2	3</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>FUNCC</td>
-					<td>Pseudo-header for C functions</td> 
-					<td></td>
-					<td>math.pow</td>
-				</tr>
-			</table>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. x^2: 34 instructions total.<br>
-			&nbsp;&nbsp;2. x*x: 34 instructions total.<br>
-			&nbsp;&nbsp;3. math.pow: 34 instructions total.
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference when compiled.<br>
-			&nbsp;&nbsp;Otherwise use <a id="inlcode">^</a>. math.pow has a function overhead, when 1 and 2 have their own opcodes.<br>
-			&nbsp;&nbsp;<a id="inlcode">*</a> operator can be slow because of <a id="inlcode">UGET</a> (<a id="inlcode">^</a> operator has <a id="inlcode">KSHORT</a>). (Fun fact: Plain Lua run x^2 in <a id="highlight">1.422s</a>)
-		</div>
-
-		<div id="header1"><div id="ch1">7. math.fmod vs % operator</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local fmod = math.fmod
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = fmod(times, 30) < 1
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = (times % 30) < 1
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. <a id="highlight">math.fmod: 0.06076 (Min: 0.02671, Average: 0.03067) second(s) (446.54%)</a><br>
-			&nbsp;&nbsp;2. % operator: 0.01361 (Min: 0.00445, Average: 0.00575) second(s) (100%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Use % for positive numbers.
-		</div>
-
-		<div id="header1"><div id="ch1">8. Predefined function or anonymous function in argument</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local func1 = function(a, b, func) return func(a + b) end
-local func2 = function(a) return a * 2 end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = func1(1, 2, function(a) return a * 2 end)
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = func1(1, 2, func2)
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. <a id="highlight">Function in argument: 0.11799 (Min: 0.06763, Average: 0.07931) second(s) (12011.59%)</a><br>
-			&nbsp;&nbsp;2. Localized function: 0.00098 (Min: 0.0003, Average: 0.00039) second(s) (100%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Anonymous function in argument is insensible in case of single use. Localize it in case of multiple use. (Fun fact: Plain Lua scored <a id="highlight">3.890s</a> with the first code)
-		</div>
-
-		<div id="header1"><div id="ch1">9. for loops</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local a = {}
+function func()
+	local a, b = 50, 10
+	Ua, Ub = a, b
+	timer.Simple(5, printAplusB)
+end</div>Moving function outside allows to compile <a class="inlcode">func</a>.</div></div><div data-testid="9" id="jitoff_test9" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Function in argument</td><td>0.61991 sec(s)</td><td>0.58707</td><td>0.88968</td><td>0.63932</td><td>(166.80%)</td></tr><tr><td>2</td><td>Localized function</td><td>0.37165 sec(s)</td><td>0.33582</td><td>0.4346</td><td>0.37056</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If it's possible, localize your function and re-use it. See a possible solution on LuaJIT tab.</div></div><div data-testid="9" id="plain_test9" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Function in argument</td><td>1.7375 sec(s)</td><td>1.646</td><td>2.083</td><td>1.75102</td><td>(185.63%)</td></tr><tr><td>2</td><td>Localized function</td><td>0.936 sec(s)</td><td>0.915</td><td>1.028</td><td>0.94642</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If it's possible, localize your function and re-use it. See a possible solution on LuaJIT tab.</div></div></div><div id="header1"><div id="test10">10. for loops<a class="headinganchor" href="#test10">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local a = {}
 
 for i = 1, 100 do
-    a[#a + 1] = i
+	a[i] = i
 end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-for k, v in pairs(a) do
-    x = v
-end
-			</div>
-			<div id="subh">Code 2 (Using <a href="https://github.com/LuaJIT/LuaJIT/pull/275">JIT-ed next</a>):</div>
-			<div id="code">
-for k, v in pairs(a) do
-    x = v
-end
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-for k, v in ipairs(a) do
-    x = v
-end
-			</div>
-			<div id="subh">Code 4:</div>
-			<div id="code">
-for i = 1, 100 do
-    x = a[i]
-end
-			</div>
-			<div id="subh">Code 5:</div>
-			<div id="code">
-for i = 1, #a do
-    x = a[i]
-end
-			</div>
-			<div id="subh">Code 6:</div>
-			<div id="code">
+
+a.n = 100
+a[0] = 100
 local length = #a
+local nxt = next
 
-for i = 1, length do
-    x = a[i]
-end
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. <a id="highlight">pairs(a): 1.3537 (Min: 0.78992, Average: 0.94855) second(s) (1106.7%)</a><br>
-			&nbsp;&nbsp;2. pairs(a) with <a href="https://github.com/LuaJIT/LuaJIT/pull/275">JIT-ed next</a>: 1.05089 (Min: 0.71751, Average: 0.77965) second(s) (859.20%)<br>
-			&nbsp;&nbsp;3. ipairs(a): 0.24878 (Min: 0.12709, Average: 0.14934) second(s) (203.40%)<br>
-			&nbsp;&nbsp;4. Known length: 0.12231 (Min: 0.08351, Average: 0.08955) second(s) (100%)<br>
-			&nbsp;&nbsp;5. #a: 0.18397 (Min: 0.1006, Average: 0.12254) second(s) (150.41%)<br>
-			&nbsp;&nbsp;6. local len = #a: 0.29334 (Min: 0.10269, Average: 0.12108) second(s) (239.83%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Try to use array instead of hashtable. If you know the exact size, localize #a. Don't use pairs for sequential arrays.
-		</div>
-		<div id="header1"><div id="ch1">10. a[x] vs a.x</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local a = {
-    foo = "bar"
-}
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = a["foo"]
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = a.foo
-			</div>
-			<div id="subh">Bytecode Results:</div>
-			&nbsp;&nbsp;1. a[x]: 8 instructions total.<br>
-			&nbsp;&nbsp;2. a.x: 8 instructions total.<br>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. a[x]: 49 instructions total.<br>
-			&nbsp;&nbsp;2. a.x: 49 instructions total.<br>
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference.<br>
-			&nbsp;&nbsp;<a id="inlcode">.x</a> is a syntactic sugar of <a id="inlcode">[x]</a>, so in bytecode they both are <a id="inlcode">TGETS</a> (A = B[C] where C is string).
-		</div>
-
-		<div id="header1"><div id="ch1">11. Localizing table value for multiple uses</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local a = {}
+function jit_pairs(t)
+	return nxt, t
+end</div><div id="subh">Code 1:</div><div id="code">for k, v in pairs(a) do
+	local x = v
+end</div><div id="subh">Code 2 (Using <a href="https://github.com/LuaJIT/LuaJIT/pull/275">JITed next on 2.1.0-beta2</a>):</div><div id="code">for k, v in jit_pairs(a) do
+	local x = v
+end</div><div id="subh">Code 3:</div><div id="code">for k, v in ipairs(a) do
+	local x = v
+end</div><div id="subh">Code 4:</div><div id="code">for i = 1, 100 do
+	local x = a[i]
+end</div><div id="subh">Code 5:</div><div id="code">for i = 1, #a do
+	local x = a[i]
+end</div><div id="subh">Code 6:</div><div id="code">for i = 1, length do
+	local x = a[i]
+end</div><div id="subh">Code 7:</div><div id="code">for i = 1, a.n do
+	local x = a[i]
+end</div><div id="subh">Code 8:</div><div id="code">for i = 1, a[0] do
+	local x = a[i]
+end</div><div id="subh">Results (1M iterations):</div><div class="tab" id="property_sheet10">
+  <button data-testid="10" class="tablinks" onclick="OpenTab(event, 'jiton_test10')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="10" class="tablinks" onclick="OpenTab(event, 'jitoff_test10')">LuaJIT Interpreter</button><button data-testid="10" class="tablinks" onclick="OpenTab(event, 'plain_test10')">Lua 5.1</button></div><div data-testid="10" id="jiton_test10" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li><a id="highlight">pairs:</a> <a id="redinline" class="inlcode">NYI on LuaJIT 2.1</a></li><li>JITed pairs: 119 instructions total.</li><li>Known length: 56 instructions total.</li><li>ipairs: 104 instructions total.</li><li>#a: 78 instructions total.</li><li>Upvalued length: 60 instructions total.</li><li>a.n: 89 instructions total.</li><li>a[0]: 80 instructions total.</li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>pairs</td><td>0.51975 sec(s)</td><td>0.48428</td><td>0.63495</td><td>0.52525</td><td>(757.87%) (7 times slower)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>JITed pairs</td><td>0.41983 sec(s)</td><td>0.39041</td><td>0.52863</td><td>0.41906</td><td>(612.17%) (6 times slower)</td></tr><tr><td>3</td><td>ipairs</td><td>0.12707 sec(s)</td><td>0.12164</td><td>0.20861</td><td>0.13086</td><td>(185.28%)</td></tr><tr><td>4</td><td>Known length</td><td>0.11527 sec(s)</td><td>0.11252</td><td>0.15329</td><td>0.1175</td><td>(168.08%)</td></tr><tr><td>5</td><td>#a</td><td>0.12063 sec(s)</td><td>0.10235</td><td>0.17138</td><td>0.1199</td><td>(175.89%)</td></tr><tr><td>6</td><td>Upvalued length</td><td>0.08333 sec(s)</td><td>0.07875</td><td>0.17807</td><td>0.08744</td><td>(121.50%)</td></tr><tr><td>7</td><td>a.n</td><td>0.08724 sec(s)</td><td>0.08448</td><td>0.10026</td><td>0.08813</td><td>(127.20%)</td></tr><tr><td>8</td><td>a[0]</td><td>0.06858 sec(s)</td><td>0.06673</td><td>0.09873</td><td>0.07049</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">a[0] or a.n are the best solution you can use. (If you have <a class="inlcode">table.pack</a> you may remember it creates a sequential table and adds <a class="inlcode">n</a> with the size of the created table this can be used for iteration)
+JITed pairs is still slow but it will compile.</div></div><div data-testid="10" id="jitoff_test10" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>pairs</td><td>0.51711 sec(s)</td><td>0.48241</td><td>0.67666</td><td>0.5224</td><td>(100%)</td></tr><tr><td>2</td><td>JITed pairs</td><td>1.80467 sec(s)</td><td>1.62461</td><td>2.02158</td><td>1.77821</td><td>(348.99%) (3 times slower)</td></tr><tr><td>3</td><td>ipairs</td><td>1.70326 sec(s)</td><td>1.64163</td><td>2.1924</td><td>1.72125</td><td>(329.38%) (3 times slower)</td></tr><tr><td>4</td><td>Known length</td><td>0.67382 sec(s)</td><td>0.6603</td><td>0.85948</td><td>0.68079</td><td>(130.30%)</td></tr><tr><td>5</td><td>#a</td><td>0.6967 sec(s)</td><td>0.68416</td><td>0.74215</td><td>0.70065</td><td>(134.72%)</td></tr><tr><td>6</td><td>Upvalued length</td><td>0.67209 sec(s)</td><td>0.6611</td><td>0.77354</td><td>0.67794</td><td>(129.97%)</td></tr><tr><td>7</td><td>a.n</td><td>0.69201 sec(s)</td><td>0.66747</td><td>1.00413</td><td>0.7115</td><td>(133.82%)</td></tr><tr><td>8</td><td>a[0]</td><td>0.6715 sec(s)</td><td>0.66014</td><td>0.77048</td><td>0.67611</td><td>(129.85%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">These results requires an explanation, no conclusion can be made.</div></div><div data-testid="10" id="plain_test10" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>pairs</td><td>3.5325 sec(s)</td><td>3.241</td><td>3.968</td><td>3.51657</td><td>(193.03%)</td></tr><tr><td>2</td><td>ipairs</td><td>3.226 sec(s)</td><td>3.059</td><td>4.155</td><td>3.24595</td><td>(176.28%)</td></tr><tr><td>3</td><td>Known length</td><td>1.83 sec(s)</td><td>1.753</td><td>2.005</td><td>1.83169</td><td>(100%)</td></tr><tr><td>4</td><td>#a</td><td>1.8305 sec(s)</td><td>1.755</td><td>2.114</td><td>1.84612</td><td>(100.02%)</td></tr><tr><td>5</td><td>Upvalued length</td><td>1.8775 sec(s)</td><td>1.794</td><td>2.452</td><td>1.9197</td><td>(102.59%)</td></tr><tr><td>6</td><td>a.n</td><td>1.8815 sec(s)</td><td>1.773</td><td>2.248</td><td>1.89361</td><td>(102.81%)</td></tr><tr><td>7</td><td>a[0]</td><td>1.841 sec(s)</td><td>1.779</td><td>2.197</td><td>1.86906</td><td>(100.60%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">a[0] and a.n are fast as in compiled LuaJIT.</div></div></div><div id="header1"><div id="test11">11. Localizing table value for multiple usage<a class="headinganchor" href="#test11">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local a = {}
 
 for i = 1, 100 do
-    a[#a + 1] = {
-        x = 10
-    }
-end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-for n = 1, 100 do
-    a[n].x = a[n].x + 1
-end
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-for n = 1, 100 do
-    local y = a[n]
-    y.x = y.x + 1
-end
-			</div>
-			<div id="subh">Bytecode Results:</div>
-			&nbsp;&nbsp;1. a[n] & a[n]:<br>
-			&nbsp;&nbsp;8 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>UGET</td>
-					<td>Set A to upvalue D</td> 
-					<td>5	0</td>
-					<td>a</td>
-				</tr>
-				<tr>
-					<td>TGETV</td>
-					<td>A = B[C] where C is a usual variable</td> 
-					<td>5	5	4</td>
-					<td></td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;2. local y = a[n] & y & y:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;6 instructions total.
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. a[n] & a[n]:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;54 instructions total. Diff:
-			<div id="bytecode">
-cmp ebx, +0x38		
-jbe 0x90e60010        ->0
-			</div>
-			&nbsp;&nbsp;2. local y = a[n] & y & y:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;52 instructions total.
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference. Localizing a[n] saves your 2 instructions, one of them is jump (jbe).
-		</div>
+	a[i] = {
+		x = 10
+	}
+end</div><div id="subh">Code 1:</div><div id="code">for n = 1, 100 do
+	a[n].x = a[n].x + 1
+end</div><div id="subh">Code 2:</div><div id="code">local a = a
 
-		<div id="header1"><div id="ch1">12. Array insertion</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local a = {}
+for n = 1, 100 do
+	local y = a[n]
+	y.x = y.x + 1
+end</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet11">
+  <button data-testid="11" class="tablinks" onclick="OpenTab(event, 'jiton_test11')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="11" class="tablinks" onclick="OpenTab(event, 'jitoff_test11')">LuaJIT Interpreter</button><button data-testid="11" class="tablinks" onclick="OpenTab(event, 'plain_test11')">Lua 5.1</button></div><div data-testid="11" id="jiton_test11" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>No localization: 64 instructions total.</li><li>Localized a and a[n]: 64 instructions total.<div class="wrap-collabsible">
+<input id="collapsible11" class="toggle" type="checkbox" onclick="ToogleDiff(event,'diff11')">
+<label for="collapsible11" class="lbl-toggle">Diff</label>
+</div><div class="collapsible-content" id="diff11">
+<div id="bytecode">  mov dword [0x29550410], 0x4
+  mov edx, [0x295504b4]
+  movsd xmm15, [0x295807c0]
+  movsd xmm14, [0x29580790]
+  movsd xmm6, [0x29580780]
+  cmp dword [rdx-0x4], 0x2955bb3c
+  jnz 0x7ffa5abd0014        ->1
+  add edx, -0x60
+  mov [0x295504b4], edx
+  movsd xmm13, [rdx+0x40]
+  movsd xmm7, [rdx+0x38]
+  addsd xmm7, xmm15
+  ucomisd xmm13, xmm7
+  jb 0x7ffa5abd0018 ->2
+  cmp dword [rdx+0x14], -0x09
+<a class="insert">+ jnz 0x7ffa5abd001c        ->3</a>
+<a class="insert">+ cmp dword [rdx+0x18], 0x2959ab30</a>
+<a class="insert">+ jnz 0x7ffa5abd001c        ->3</a>
+<a class="insert">+ mov edi, [0x2959ab20]</a>
+<a class="insert">+ add edi, -0x08</a>
+<a class="insert">+ cmp edi, edx</a>
+  jnz 0x7ffa5abd001c        ->3
+  cmp dword [rdx+0x10], 0x2959aaf0
+  jnz 0x7ffa5abd001c        ->3
+<a class="insert">+ mov edi, [rdx+0x8]</a>
+<a class="insert">+ movsd [rdx+0x88], xmm15</a>
+  movsd [rdx+0x80], xmm15
+  movsd [rdx+0x78], xmm15
+  movsd [rdx+0x70], xmm14
+<a class="delete">- movsd [rdx+0x68], xmm15</a>
+<a class="insert">+ mov dword [rdx+0x6c], 0xfffffff4</a>
+<a class="insert">+ mov [rdx+0x68], edi</a>
+  movsd [rdx+0x60], xmm6
+  mov dword [rdx+0x5c], 0x2955bb3c
+  mov dword [rdx+0x58], 0x2959aaf0
+  movsd [rdx+0x38], xmm7
+  add edx, +0x60
+  mov [0x295504b4], edx
+  jmp 0x7ffa5abdfdc1
+  mov dword [0x29550410], 0x2
+  movsd xmm0, [0x29592110]
+  cvttsd2si edi, [rdx+0x8]
+<a class="delete">- mov r10d, [rdx-0x8]</a>
+<a class="delete">- mov esi, [r10+0x14]</a>
+<a class="delete">- mov r9d, [rsi+0x10]</a>
+<a class="delete">- mov ebx, r9d</a>
+<a class="delete">- sub ebx, edx</a>
+<a class="delete">- cmp ebx, +0x30</a>
+<a class="delete">- jbe 0x7ffa5abd0010        ->0</a>
+  cmp dword [r9+0x4], -0x0c
+  jnz 0x7ffa5abd0010        ->0
+  mov r8d, [r9]
+  cmp dword [r8+0x18], +0x64
+  jbe 0x7ffa5abd0010        ->0
+  mov eax, [r8+0x8]
+  cmp dword [rax+rdi*8+0x4], -0x0c
+  jnz 0x7ffa5abd0010        ->0
+  mov edx, [rax+rdi*8]
+<a class="delete">- cmp ebx, +0x38</a>
+<a class="delete">- jbe 0x7ffa5abd0010        ->0</a>
+  cmp dword [rdx+0x1c], +0x01
+  jnz 0x7ffa5abd0010        ->0
+  mov ecx, [rdx+0x14]
+  mov rsi, 0xfffffffb2955a520
+  cmp rsi, [rcx+0x20]
+  jnz 0x7ffa5abd0010        ->0
+  cmp dword [rcx+0x1c], 0xfffeffff
+  jnb 0x7ffa5abd0010        ->0
+  movsd xmm1, [rcx+0x18]
+  addsd xmm1, xmm0
+  movsd [rcx+0x18], xmm1
+  add edi, +0x01
+  cmp edi, +0x64
+  jg 0x7ffa5abd0014 ->1</div>
+</div></li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">You may localize your values for interpreter.
+However, LuaJIT suggests not try to second-guess the JIT compiler because in compiled code locals and upvalues are used directly by their reference pointer, making over-localization may complicate the compiled code.</div></div><div data-testid="11" id="jitoff_test11" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>No localization</td><td>19.37724 sec(s)</td><td>19.18286</td><td>21.82537</td><td>19.48628</td><td>(137.26%)</td></tr><tr><td>2</td><td>Localized a and a[n]</td><td>14.11709 sec(s)</td><td>13.8045</td><td>17.69585</td><td>14.28717</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If your code can't compiler localization is best you can do here.</div></div><div data-testid="11" id="plain_test11" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>No localization</td><td>58.832 sec(s)</td><td>56.511</td><td>70.485</td><td>60.3759</td><td>(120.64%)</td></tr><tr><td>2</td><td>Localized a and a[n]</td><td>48.7655 sec(s)</td><td>41.021</td><td>53.683</td><td>46.57903</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Localization speeds up the code.</div></div></div><div id="header1"><div id="test12">12. Array insertion<a class="headinganchor" href="#test12">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local a = {
+	[0] = 0
+}
+
 local tinsert = table.insert
-local count = 1
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-tinsert(a, times)
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-tinsert(a, 1, times)
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-a[times] = times
-			</div>
-			<div id="subh">Code 4:</div>
-			<div id="code">
-a[#a + 1] = times
-			</div>
-			<div id="subh">Code 5:</div>
-			<div id="code">
-a[count] = times
-count = count + 1
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. <a id="highlight">tinsert: 0.18298 (Min: 0.10624, Average: 0.12044) second(s) (500.62%)</a><br>
-			&nbsp;&nbsp;2. <a id="highlight">tinsert at index 1: 835.05418 (Min: 661.96379, Average: 705.36165) second(s) (2284689.95%)</a><br>
-			&nbsp;&nbsp;3. a[times]: 0.03655 (Min: 0.01016, Average: 0.01547) second(s) (100%)<br>
-			&nbsp;&nbsp;4. a[#a + 1]: 0.18138 (Min: 0.10908, Average: 0.12436) second(s) (496.25%)<br>
-			&nbsp;&nbsp;5. a[count] & count++: 0.23939 (Min: 0.07798, Average: 0.14459) second(s) (654.96%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Try to use the `i` from the for loop or a[#a + 1].
-		</div>
-
-		<div id="header1"><div id="ch1">13. Table with and without pre-allocated size</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local a
+local count = 1</div><div id="subh">Code 1:</div><div id="code">tinsert(a, times)</div><div id="subh">Code 2:</div><div id="code">a[times] = times</div><div id="subh">Code 3:</div><div id="code">a[#a + 1] = times</div><div id="subh">Code 4:</div><div id="code">a[count] = times
+count = count + 1</div><div id="subh">Code 5:</div><div id="code">a[0] = a[0] + 1
+a[a[0]] = times</div><div id="subh">Results (1M iterations):</div><div class="tab" id="property_sheet12">
+  <button data-testid="12" class="tablinks" onclick="OpenTab(event, 'jiton_test12')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="12" class="tablinks" onclick="OpenTab(event, 'jitoff_test12')">LuaJIT Interpreter</button><button data-testid="12" class="tablinks" onclick="OpenTab(event, 'plain_test12')">Lua 5.1</button></div><div data-testid="12" id="jiton_test12" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>tinsert: 77 instructions total.</li><li>a[times]: 74 instructions total.</li><li>a[#a + 1]: 85 instructions total.</li><li>a[count]: 102 instructions total.</li><li>a[a[0]]: 100 instructions total.</li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>tinsert</td><td>0.09991 sec(s)</td><td>0.09609</td><td>0.15484</td><td>0.10376</td><td>(100%)</td></tr><tr><td>2</td><td>a[times]</td><td>0.00604 sec(s)</td><td>0.00521</td><td>0.01118</td><td>0.00618</td><td>(6.04%) (16 times faster)</td></tr><tr><td>3</td><td>a[#a + 1]</td><td>0.10071 sec(s)</td><td>0.09641</td><td>0.22354</td><td>0.10418</td><td>(100.80%)</td></tr><tr style="background-color: #e56060;"><td>4</td><td>a[count]</td><td>0.11952 sec(s)</td><td>0.08053</td><td>0.1938</td><td>0.1229</td><td>(119.62%)</td></tr><tr><td>5</td><td>a[a[0]]</td><td>0.00943 sec(s)</td><td>0.00864</td><td>0.01265</td><td>0.00972</td><td>(9.43%) (10 times faster)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Please notice that percentage calculation is taken from other result.
+Using a local or a constant value is the fastest method. If possible use <a class="inlcode">a[0]++; a[a[0]] = times</a>, otherwise use <a class="inlcode">#a + 1</a>.</div></div><div data-testid="12" id="jitoff_test12" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>tinsert</td><td>0.14412 sec(s)</td><td>0.13741</td><td>0.21978</td><td>0.14607</td><td>(105.38%)</td></tr><tr><td>2</td><td>a[times]</td><td>0.01975 sec(s)</td><td>0.01839</td><td>0.03411</td><td>0.02016</td><td>(14.44%) (6 times faster)</td></tr><tr><td>3</td><td>a[#a + 1]</td><td>0.13676 sec(s)</td><td>0.13096</td><td>0.19211</td><td>0.13932</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>4</td><td>a[count]</td><td>0.19627 sec(s)</td><td>0.14492</td><td>0.28874</td><td>0.20626</td><td>(143.51%)</td></tr><tr><td>5</td><td>a[a[0]]</td><td>0.03491 sec(s)</td><td>0.03222</td><td>0.0404</td><td>0.03516</td><td>(25.52%) (3 times faster)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Please notice that percentage calculation is taken from other result.
+Using a local or a constant value is the fastest method. If possible use <a class="inlcode">a[0]++; a[a[0]] = times</a>, otherwise use <a class="inlcode">#a + 1</a>.</div></div><div data-testid="12" id="plain_test12" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>tinsert</td><td>0.137 sec(s)</td><td>0.131</td><td>0.175</td><td>0.14059</td><td>(228.33%) (2 times slower)</td></tr><tr><td>2</td><td>a[times]</td><td>0.06 sec(s)</td><td>0.057</td><td>0.069</td><td>0.06068</td><td>(100%)</td></tr><tr><td>3</td><td>a[#a + 1]</td><td>0.137 sec(s)</td><td>0.13</td><td>0.236</td><td>0.14064</td><td>(228.33%) (2 times slower)</td></tr><tr style="background-color: #e56060;"><td>4</td><td>a[count]</td><td>0.5095 sec(s)</td><td>0.146</td><td>1.106</td><td>0.55534</td><td>(849.16%) (8 times slower)</td></tr><tr><td>5</td><td>a[a[0]]</td><td>0.115 sec(s)</td><td>0.111</td><td>0.149</td><td>0.11667</td><td>(191.66%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Please notice that percentage calculation is taken from other result.
+Using a local or a constant value is the fastest method. If possible use <a class="inlcode">a[0]++; a[a[0]] = times</a>, otherwise use <a class="inlcode">#a + 1</a>.</div></div></div><div id="header1"><div id="test13">13. Table with and without pre-allocated size<a class="headinganchor" href="#test13">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local a
 require("table.new")
 local new = table.new
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-a = {}
+local ffinew = ffi.new</div><div id="subh">Code 1:</div><div id="code">local a = {}
 a[1] = 1
 a[2] = 2
-a[3] = 3
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-a = {true, true, true}
+a[3] = 3</div><div id="subh">Code 2:</div><div id="code">local a = {true, true, true}
 a[1] = 1
 a[2] = 2
-a[3] = 3
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-a = new(3,0)
+a[3] = 3</div><div id="subh">Code 3 (table.new is available since LuaJIT v2.1.0-beta1):</div><div id="code">local a = new(3,0)
 a[1] = 1
 a[2] = 2
-a[3] = 3
-			</div>
-			<div id="subh">Code 4:</div>
-			<div id="code">
-a = {1, 2, 3}
-			</div>
-			<div id="subh">Code 5 (FFI):</div>
-			<div id="code">
-a = ffi.new("int[3]", 1, 2, 3)
-			</div>
-			<div id="subh">Code 6 (FFI):</div>
-			<div id="code">
-a = ffi.new("int[3]")
+a[3] = 3</div><div id="subh">Code 4:</div><div id="code">local a = {1, 2, 3}</div><div id="subh">Code 5 (FFI):</div><div id="code">local a = ffinew("int[3]", 1, 2, 3)</div><div id="subh">Code 6 (FFI):</div><div id="code">local a = ffinew("int[3]")
 a[0] = 1
 a[1] = 2
-a[2] = 3
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. <a id="highlight">Allocated on demand: 0.25558 (Min: 0.16433, Average: 0.18059) second(s) (11209.64%)</a><br>
-			&nbsp;&nbsp;2. Pre-allocated with dummy values: 0.00327 (Min: 0.00061, Average: 0.00095) second(s) (143.42%)<br>
-			&nbsp;&nbsp;3. <a id="highlight">Pre-allocated by table.new: 0.10373 (Min: 0.04809, Average: 0.05792) second(s) (4549.56%)</a><br>
-			&nbsp;&nbsp;4. Defined in constructor: 0.0031 (Min: 0.00061, Average: 0.00093) second(s) (135.96%)<br>
-			&nbsp;&nbsp;5. (FFI) Defined in constructor: 0.00228 (Min: 0.00062, Average: 0.00087) second(s) (100%)<br>
-			&nbsp;&nbsp;6. (FFI) Defined after: 0.00403 (Min: 0.00061, Average: 0.0009) second(s) (176.75%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Pre-allocate table size for better performance.
-		</div>
-
-		<div id="header1"><div id="ch1">14. Table initialization before or each time on insertion</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-T = {}
-local CachedTable = {"abc", "def", "ghk"}
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-T[times] = CachedTable
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-T[times] = {"abc", "def", "ghk"}
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. Cached table for all insertion: 0.00356 (Min: 0.00098, Average: 0.00162) second(s) (100%)<br>
-			&nbsp;&nbsp;2. <a id="highlight">Table constructor for each insertion: 0.07934 (Min: 0.02153, Average: 0.0256) second(s) (2229.13%)</a>
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;If you use the same table/userdata/function multiple times cache it and reuse every time. (For example Color object in Garry's Mod)
-		</div>
-
-		<div id="header1"><div id="ch1">15. String split (by character)</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local text = "Hello, this is an example text"
+a[2] = 3</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet13">
+  <button data-testid="13" class="tablinks" onclick="OpenTab(event, 'jiton_test13')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="13" class="tablinks" onclick="OpenTab(event, 'jitoff_test13')">LuaJIT Interpreter</button><button data-testid="13" class="tablinks" onclick="OpenTab(event, 'plain_test13')">Lua 5.1</button></div><div data-testid="13" id="jiton_test13" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li><a id="highlight">Allocated on demand: 96 instructions total.</a></li><li>Pre-allocated with dummy values: 18 instructions total.</li><li><a id="highlight">Pre-allocated by table.new: 82 instructions total.</a></li><li>Defined in constructor: 18 instructions total.</li><li>(FFI) Defined in constructor: 18 instructions total.</li><li>(FFI) Defined after: 18 instructions total.</li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr style="background-color: #e56060;"><td>1</td><td>Allocated on demand</td><td>1.26337 sec(s)</td><td>1.24794</td><td>1.53786</td><td>1.2751</td><td>(39480.31%) (394 times slower)</td></tr><tr><td>2</td><td>Pre-allocated with dummy values</td><td>0.0032 sec(s)</td><td>0.00312</td><td>0.00358</td><td>0.00322</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>3</td><td>Pre-allocated by table.new</td><td>0.41859 sec(s)</td><td>0.4055</td><td>0.49486</td><td>0.42476</td><td>(13080.93%) (130 times slower)</td></tr><tr><td>4</td><td>Defined in constructor</td><td>0.00325 sec(s)</td><td>0.00306</td><td>0.00411</td><td>0.00329</td><td>(101.56%)</td></tr><tr><td>5</td><td>(FFI) Defined in constructor</td><td>0.00325 sec(s)</td><td>0.0031</td><td>0.00425</td><td>0.00331</td><td>(101.56%)</td></tr><tr><td>6</td><td>(FFI) Defined after</td><td>0.00339 sec(s)</td><td>0.00312</td><td>0.00463</td><td>0.00351</td><td>(105.93%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Pre-allocation will speed up your code if you need more speed.
+In 50% cases tables are used without pre-allocated space, so it's ok to allocate them on demand.</div></div><div data-testid="13" id="jitoff_test13" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Allocated on demand</td><td>1.73737 sec(s)</td><td>1.7137</td><td>1.90643</td><td>1.74489</td><td>(310.27%) (3 times slower)</td></tr><tr><td>2</td><td>Pre-allocated with dummy values</td><td>0.61846 sec(s)</td><td>0.61472</td><td>0.6396</td><td>0.61924</td><td>(110.44%)</td></tr><tr><td>3</td><td>Pre-allocated by table.new</td><td>0.86155 sec(s)</td><td>0.81076</td><td>1.41348</td><td>0.86788</td><td>(153.86%)</td></tr><tr><td>4</td><td>Defined in constructor</td><td>0.55995 sec(s)</td><td>0.53821</td><td>0.63602</td><td>0.56426</td><td>(100%)</td></tr><tr><td>5</td><td>(FFI) Defined in constructor</td><td>3.09061 sec(s)</td><td>2.94983</td><td>3.91517</td><td>3.18377</td><td>(551.94%) (5 times slower)</td></tr><tr><td>6</td><td>(FFI) Defined after</td><td>4.46811 sec(s)</td><td>4.18024</td><td>5.32326</td><td>4.61457</td><td>(797.94%) (7 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Pre-allocation will speed up your code if you need more speed.
+In 50% cases tables are used without pre-allocated space, so it's ok to allocate them on demand.
+If you don't need to use FFI array don't use it for the CPU optimization (unless for RAM).</div></div><div data-testid="13" id="plain_test13" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Allocated on demand</td><td>5.304 sec(s)</td><td>5.243</td><td>5.694</td><td>5.32726</td><td>(196.88%)</td></tr><tr><td>2</td><td>Pre-allocated with dummy values</td><td>2.863 sec(s)</td><td>2.676</td><td>3.763</td><td>2.9231</td><td>(106.27%)</td></tr><tr><td>3</td><td>Defined in constructor</td><td>2.694 sec(s)</td><td>2.303</td><td>3.364</td><td>2.65954</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Pre-allocation will speed up your code if you need more speed.
+In 50% cases tables are used without pre-allocated space, so it's ok to allocate them on demand.</div></div></div><div id="header1"><div id="test14">14. Table initialization before or each time on insertion<a class="headinganchor" href="#test14">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local T = {}
+local CachedTable = {"abc", "def", "ghk"}</div><div id="subh">Code 1:</div><div id="code">T[times] = CachedTable</div><div id="subh">Code 2:</div><div id="code">T[times] = {"abc", "def", "ghk"}</div><div id="subh">Results (1M iterations):</div><div class="tab" id="property_sheet14">
+  <button data-testid="14" class="tablinks" onclick="OpenTab(event, 'jiton_test14')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="14" class="tablinks" onclick="OpenTab(event, 'jitoff_test14')">LuaJIT Interpreter</button><button data-testid="14" class="tablinks" onclick="OpenTab(event, 'plain_test14')">Lua 5.1</button></div><div data-testid="14" id="jiton_test14" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>Cached table for all insertion: 101 instructions total.</li><li><a id="highlight">Table constructor for each insertion: 110 instructions total.</a></li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Cached table for all insertion</td><td>0.00101 sec(s)</td><td>0.00077</td><td>0.00259</td><td>0.0011</td><td>(100%)</td></tr><tr><td>2</td><td>Table constructor for each insertion</td><td>0.02134 sec(s)</td><td>0.01942</td><td>0.16945</td><td>0.02367</td><td>(2105.28%) (21 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If this possible, cache your table.</div></div><div data-testid="14" id="jitoff_test14" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Cached table for all insertion</td><td>0.0181 sec(s)</td><td>0.01671</td><td>0.02724</td><td>0.0186</td><td>(100%)</td></tr><tr><td>2</td><td>Table constructor for each insertion</td><td>0.03385 sec(s)</td><td>0.03194</td><td>0.12204</td><td>0.03555</td><td>(186.97%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If this possible, cache your table.</div></div><div data-testid="14" id="plain_test14" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Cached table for all insertion</td><td>0.048 sec(s)</td><td>0.045</td><td>0.061</td><td>0.0493</td><td>(100%)</td></tr><tr><td>2</td><td>Table constructor for each insertion</td><td>0.211 sec(s)</td><td>0.19</td><td>0.356</td><td>0.21706</td><td>(439.58%) (4 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If this possible, cache your table.</div></div></div><div id="header1"><div id="test15">15. String split (by character)<a class="headinganchor" href="#test15">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local text = "Hello, this is an example text"
 local cstring = ffi.cast("const char*", text)
 local char = string.char
+local sub, gsub, gmatch = string.sub, string.gsub, string.gmatch
 
 local gsubfunc = function(s)
-    x = s
-end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-for i = 1, #text do
-    x = text:sub(i, i)
-end
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-for k in string.gmatch(text, ".") do
-    x = k
-end
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-string.gsub(text, ".", gsubfunc)
-			</div>
-			<div id="subh">Code 4 (FFI):</div>
-			<div id="code">
-for i = 0, #text - 1 do
-    x = char(cstring[i])
-end
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. sub(1,1): 0.43051 (Min: 0.31354, Average: 0.33679) second(s) (100%)<br>
-			&nbsp;&nbsp;2. <a id="highlight">gmatch with ".": 2.8014 (Min: 1.87609, Average: 2.13029) second(s) (650.71%)</a><br>
-			&nbsp;&nbsp;3. <a id="highlight">gsub with "." and cached function: 3.04491 (Min: 2.37368, Average: 2.54034) second(s) (707.27%)</a></br>
-			&nbsp;&nbsp;4. (FFI) Predefined const char* array: 0.60989 (Min: 0.34236, Average: 0.39011) second(s) (141.66%)
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;string.sub is ok for string splitting. Patterns deal huge impact on performance.
-		</div>
-
-		<div id="header1"><div id="ch1">16. Empty string check</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local s = ""
+	local x = s
+end</div><div id="subh">Code 1:</div><div id="code">for i = 1, #text do
+	local x = sub(text, i, i)
+end</div><div id="subh">Code 2:</div><div id="code">for k in gmatch(text, ".") do
+    local x = k
+end</div><div id="subh">Code 3:</div><div id="code">gsub(text, ".", gsubfunc)</div><div id="subh">Code 4 (FFI):</div><div id="code">for i = 0, #text - 1 do
+	local x = char(cstring[i])
+end</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet15">
+  <button data-testid="15" class="tablinks" onclick="OpenTab(event, 'jiton_test15')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="15" class="tablinks" onclick="OpenTab(event, 'jitoff_test15')">LuaJIT Interpreter</button><button data-testid="15" class="tablinks" onclick="OpenTab(event, 'plain_test15')">Lua 5.1</button></div><div data-testid="15" id="jiton_test15" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>sub(i,i): 49 instructions total.</li><li>gmatch: 114 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a><a id="yellowinline" class="inlcode">Stitches on LuaJIT 2.1</a></li><li>gsub: 65 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a><a id="yellowinline" class="inlcode">Stitches on LuaJIT 2.1</a></li><li>(FFI) const char indexing: 48 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>sub</td><td>0.03063 sec(s)</td><td>0.0257</td><td>0.06535</td><td>0.03253</td><td>(114.12%)</td></tr><tr><td>2</td><td>gmatch</td><td>1.66512 sec(s)</td><td>1.6147</td><td>2.3234</td><td>1.75248</td><td>(6203.87%) (62 times slower)</td></tr><tr><td>3</td><td>gsub</td><td>2.28969 sec(s)</td><td>2.21768</td><td>2.77874</td><td>2.32719</td><td>(8530.88%) (85 times slower)</td></tr><tr><td>4</td><td>(FFI) const char indexing</td><td>0.02684 sec(s)</td><td>0.02552</td><td>0.03212</td><td>0.02705</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If you're using FFI on LuaJIT 2.1.0 and higher, splitting will be the fastest.
+Probably you wouldn't need to split it because ffi arrays are mutable, so all text manipulations can be done directly. Otherwise use <a class="inlcode">string.sub</a>.
+It's recommended to use <a class="inlcode">string.find</a>, <a class="inlcode">string.match</a>, etc if possible. Splitting each char wastes GC.</div></div><div data-testid="15" id="jitoff_test15" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>sub</td><td>0.70481 sec(s)</td><td>0.68331</td><td>1.25768</td><td>0.75732</td><td>(100%)</td></tr><tr><td>2</td><td>gmatch</td><td>1.4904 sec(s)</td><td>1.44831</td><td>2.05846</td><td>1.53365</td><td>(211.46%) (2 times slower)</td></tr><tr><td>3</td><td>gsub</td><td>2.12422 sec(s)</td><td>2.07281</td><td>2.61494</td><td>2.16115</td><td>(301.38%) (3 times slower)</td></tr><tr><td>4</td><td>(FFI) const char indexing:</td><td>2.31658 sec(s)</td><td>2.18599</td><td>3.02638</td><td>2.35951</td><td>(328.68%) (3 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Use <a class="inlcode">string.sub</a>.
+It's recommended to use <a class="inlcode">string.find</a>, <a class="inlcode">string.match</a>, etc if possible. Splitting each char wastes GC.</div></div><div data-testid="15" id="plain_test15" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>sub</td><td>1.6025 sec(s)</td><td>1.558</td><td>2.258</td><td>1.68562</td><td>(100%)</td></tr><tr><td>2</td><td>gmatch</td><td>2.157 sec(s)</td><td>2.092</td><td>2.394</td><td>2.16154</td><td>(134.60%)</td></tr><tr><td>3</td><td>gsub</td><td>2.6765 sec(s)</td><td>2.273</td><td>3.131</td><td>2.57897</td><td>(167.02%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Use <a class="inlcode">string.sub</a>.
+It's recommended to use <a class="inlcode">string.find</a>, <a class="inlcode">string.match</a>, etc if possible. Splitting each char wastes GC.</div></div></div><div id="header1"><div id="test16">16. Empty string check<a class="headinganchor" href="#test16">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local s = ""
 local cstring = ffi.cast("const char*", s)
 ffi.cdef([[
     size_t strlen ( const char * str );
 ]])
-local C = ffi.C
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-y = #s == 0
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-y = s == ""
-			</div>
-			<div id="subh">Code 3 (FFI):</div>
-			<div id="code">
-y = cstring[0] == 0
-			</div>
-			<div id="subh">Code 4 (FFI):</div>
-			<div id="code">
-y = C.strlen(cstring) == 0
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. len == 0: 0.00534 (Min: 0.0003, Average: 0.00062) second(s) (120.27%)<br>
-			&nbsp;&nbsp;2. str == "": 0.00538 (Min: 0.0003, Average: 0.00077) second(s) (121.17%)<br>
-			&nbsp;&nbsp;3. (FFI) y = cstring[0] == 0: 0.00444 (Min: 0.0003, Average: 0.00054) second(s) (100%)<br>
-			&nbsp;&nbsp;4. (FFI) <a id="highlight">y = C.strlen(cstring) == 0: 0.01422 (Min: 0.00202, Average: 0.00323) second(s) (320.27%)</a>
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;No difference for Lua strings. Use the second syntax if you don't know the value type. If you use FFI consider using array indexing.<br>
-			&nbsp;&nbsp;Remember, length of strings like <a id="inlcode">\0hello</a> will return 6 as Lua string but 0 by strlen.
-		</div>
-		<div id="header1"><div id="ch1">17. C array size (FFI)</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-new = ffi.new
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = new("const char*[16]")
-x1 = new("const char*[1024]")
-x2 = new("int[16]")
-x3 = new("int[1024]")
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = new("const char*[?]", 16)
-x1 = new("const char*[?]", 1024)
-x2 = new("int[?]", 16)
-x3 = new("int[?]", 1024)
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. [n]: 3.71268 (Min: 2.55459, Average: 2.91652) second(s) (100%)<br>
-			&nbsp;&nbsp;2. VLA: 4.13164 (Min: 2.32921, Average: 2.89719) second(s) (111.28%)<br>
-			
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Both of them are ok.</br>
-			&nbsp;&nbsp;Note from NYI: ffi.new is partially compiled in 2.1: Not for non-default init of VLA/VLS or > 128 bytes or > 16 array elements.
-		</div>
-		<div id="header1"><div id="ch1">18. String concatenation</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local s, d
-local bs = string.rep("----------", 1000)
+local C = ffi.C</div><div id="subh">Code 1:</div><div id="code">local x = #s == 0</div><div id="subh">Code 2:</div><div id="code">local x = s == ""</div><div id="subh">Code 3 (FFI):</div><div id="code">local x = cstring[0] == 0</div><div id="subh">Code 4 (FFI):</div><div id="code">local x = C.strlen(cstring) == 0</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet16">
+  <button data-testid="16" class="tablinks" onclick="OpenTab(event, 'jiton_test16')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="16" class="tablinks" onclick="OpenTab(event, 'jitoff_test16')">LuaJIT Interpreter</button><button data-testid="16" class="tablinks" onclick="OpenTab(event, 'plain_test16')">Lua 5.1</button></div><div data-testid="16" id="jiton_test16" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>#s == 0: 18 instructions total.</li><li>s == "": 18 instructions total.</li><li>cstring[0] == 0: 21 instructions total.</li><li><a id="highlight">C.strlen(cstring) == 0: 59 instructions total.</a></li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>#s == 0 and s == ""</td><td>0.00328 sec(s)</td><td>0.00308</td><td>0.01392</td><td>0.00364</td><td>(100%)</td></tr><tr><td>2</td><td>cstring[0] == 0</td><td>0.00362 sec(s)</td><td>0.00307</td><td>0.00699</td><td>0.00391</td><td>(110.36%)</td></tr><tr style="background-color: #e56060;"><td>3</td><td>C.strlen(cstring) == 0</td><td>0.02658 sec(s)</td><td>0.02398</td><td>0.04405</td><td>0.02779</td><td>(810.36%) (8 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If you're using FFI, use Lua syntax to check empty string.</div></div><div data-testid="16" id="jitoff_test16" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>#s == 0</td><td>0.17336 sec(s)</td><td>0.16405</td><td>0.27169</td><td>0.18419</td><td>(125.75%)</td></tr><tr><td>2</td><td>s == ""</td><td>0.13785 sec(s)</td><td>0.13267</td><td>0.18884</td><td>0.1399</td><td>(100%)</td></tr><tr><td>3</td><td>cstring[0] == 0</td><td>0.66383 sec(s)</td><td>0.64888</td><td>0.7367</td><td>0.66915</td><td>(481.55%) (4 times slower)</td></tr><tr style="background-color: #e56060;"><td>4</td><td>C.strlen(cstring) == 0</td><td>2.19199 sec(s)</td><td>2.1318</td><td>2.52241</td><td>2.19931</td><td>(1590.12%) (15 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If you're using FFI, use Lua syntax to check empty string.</div></div><div data-testid="16" id="plain_test16" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>#s == 0</td><td>0.4685 sec(s)</td><td>0.456</td><td>0.649</td><td>0.48129</td><td>(107.82%)</td></tr><tr><td>2</td><td>s == ""</td><td>0.4345 sec(s)</td><td>0.412</td><td>0.545</td><td>0.44393</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">String comparison is a little bit faster than length comparison.</div></div></div><div id="header1"><div id="test17">17. C array size (FFI)<a class="headinganchor" href="#test17">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">new = ffi.new</div><div id="subh">Code 1:</div><div id="code">new("const char*[16]")
+new("const char*[1024]")
+new("int[16]")
+new("int[1024]")</div><div id="subh">Code 2:</div><div id="code">new("const char*[?]", 16)
+new("const char*[?]", 1024)
+new("int[?]", 16)
+new("int[?]", 1024)</div><div id="subh">Results (1M iterations):</div><div class="tab" id="property_sheet17">
+  <button data-testid="17" class="tablinks" onclick="OpenTab(event, 'jiton_test17')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="17" class="tablinks" onclick="OpenTab(event, 'jitoff_test17')">LuaJIT Interpreter</button></div><div data-testid="17" id="jiton_test17" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>[n]: 113 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li><li>VLA: 105 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>[n]</td><td>2.64742 sec(s)</td><td>2.20694</td><td>4.07516</td><td>2.68361</td><td>(105.73%)</td></tr><tr><td>2</td><td>VLA</td><td>2.50381 sec(s)</td><td>2.01546</td><td>3.85597</td><td>2.47497</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">For some reason LuaJIT 2.0 is not able to compile any C type. Use VLA is possible.</div></div><div data-testid="17" id="jitoff_test17" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>[n]</td><td>4.32618 sec(s)</td><td>3.7442</td><td>5.66979</td><td>4.37286</td><td>(102.28%)</td></tr><tr><td>2</td><td>VLA</td><td>4.22957 sec(s)</td><td>3.54316</td><td>5.77651</td><td>4.20961</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Use VLA is possible.</div></div></div><div id="header1"><div id="test18">18. String concatenation<a class="headinganchor" href="#test18">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local bs = string.rep("----------", 1000)
 local t = {bs, bs, bs, bs, bs, bs, bs, bs, bs, bs}
-
--- I use this function to make sure that LuaJIT doesn't skip the iteration.
-local function use(_)
-    d = _
-end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-s = bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs
-use(s)
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-s = bs
+local concat = table.concat
+local format = string.format</div><div id="subh">Code 1:</div><div id="code">local s = bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs</div><div id="subh">Code 2:</div><div id="code">local s = bs
 s = s .. bs
 s = s .. bs
 s = s .. bs
@@ -1021,188 +568,46 @@ s = s .. bs
 s = s .. bs
 s = s .. bs
 s = s .. bs
-s = s .. bs
-use(s)
-			</div>
-			<div id="subh">Code 3:</div>
-			<div id="code">
-s = bs
+s = s .. bs</div><div id="subh">Code 3:</div><div id="code">local s = bs
 
 for i = 1, 9 do
     s = s .. bs
-end
-
-use(s)
-			</div>
-			<div id="subh">Code 4:</div>
-			<div id="code">
-s = table.concat(t)
-use(s)
-			</div>
-			<div id="subh">Code 5:</div>
-			<div id="code">
-s = string.format("%s%s%s%s%s%s%s%s%s%s", bs, bs, bs, bs, bs, bs, bs, bs, bs, bs)
-use(s)
-			</div>
-			<div id="subh">Results:</div>
-			&nbsp;&nbsp;1. All concatenations at once: 0.00242 (Min: 0.0003, Average: 0.00054) second(s) (100%)<br>
-			&nbsp;&nbsp;2. Separate concatenations in a row: 0.00766 (Min: 0.0003, Average: 0.00051) second(s) (316.52%)<br>
-			&nbsp;&nbsp;3. <a id="highlight">Separate concatenations in loop: 90.73938 (Min: 74.0794, Average: 77.69551) second(s) (3749561.15%)</a><br>
-			&nbsp;&nbsp;4. table.concat: 20.74941 (Min: 16.40618, Average: 17.86198) second(s) (857413.63%)<br>
-			&nbsp;&nbsp;5. string.format: 0.01353 (Min: 0.0003, Average: 0.00068) second(s) (559.09%)<br>
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp; table.concat should be used in places where concatenation can't be optimized by LuaJIT.
-		</div>
-		<div id="header1"><div id="ch1">19. Constant variables in functions</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local TYPE_bool = "bool"
-function isbool1(b)
+end</div><div id="subh">Code 4:</div><div id="code">concat(t)</div><div id="subh">Code 5:</div><div id="code">format("%s%s%s%s%s%s%s%s%s%s", bs, bs, bs, bs, bs, bs, bs, bs, bs, bs)</div><div id="subh">Results (100k iterations):</div><div class="tab" id="property_sheet18">
+  <button data-testid="18" class="tablinks" onclick="OpenTab(event, 'jiton_test18')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="18" class="tablinks" onclick="OpenTab(event, 'jitoff_test18')">LuaJIT Interpreter</button><button data-testid="18" class="tablinks" onclick="OpenTab(event, 'plain_test18')">Lua 5.1</button></div><div data-testid="18" id="jiton_test18" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>Inline concat: 18 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li><li>Separate concat: 18 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li><li><a id="highlight">Loop concat: 94 instructions total.</a> <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li><li>table.concat: 39 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li><li>string.format: 18 instructions total. <a id="redinline" class="inlcode">NYI on LuaJIT 2.0</a></li></ol><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Inline, separate concat and string.format</td><td>0.00003 sec(s)</td><td>0.00003</td><td>0.00415</td><td>0.00012</td><td>(0.009986%) (10014 times faster)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>Loop concat</td><td>6.70725 sec(s)</td><td>5.60963</td><td>8.0101</td><td>6.57035</td><td>(2232.55%) (22 times slower)</td></tr><tr><td>3</td><td>table.concat</td><td>0.30043 sec(s)</td><td>0.26492</td><td>0.37815</td><td>0.30172</td><td>(100%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">Please notice that percentage calculation is taken from other result.
+This is an example when LuaJIT fails to optimize and compile code efficiently. The loop wasn't unrolled properly.
+LuaJIT suggest to find a balance between loops and unrolls and use templates.
+<a class="inlcode">table.concat</a> is best solution in complicated code, however, if it's possible make concats inline or unroll loops.</div></div><div data-testid="18" id="jitoff_test18" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Inline concat</td><td>1.44256 sec(s)</td><td>1.42674</td><td>1.76183</td><td>1.46447</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>Separate concat</td><td>5.82289 sec(s)</td><td>5.44671</td><td>7.76331</td><td>5.9645</td><td>(403.64%) (4 times slower)</td></tr><tr style="background-color: #e56060;"><td>3</td><td>Loop concat</td><td>6.61971 sec(s)</td><td>5.70944</td><td>7.64707</td><td>6.6218</td><td>(458.88%) (4 times slower)</td></tr><tr><td>4</td><td>table.concat</td><td>1.49022 sec(s)</td><td>1.41849</td><td>1.95012</td><td>1.56112</td><td>(103.30%)</td></tr><tr><td>5</td><td>string.format</td><td>1.46481 sec(s)</td><td>1.42773</td><td>2.05097</td><td>1.52796</td><td>(101.54%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If it's possible inline your concats, otherwise use <a class="inlcode">table.concat</a>.</div></div><div data-testid="18" id="plain_test18" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>Inline concat</td><td>1.023 sec(s)</td><td>1.01</td><td>1.296</td><td>1.04552</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>Separate concat</td><td>10.445 sec(s)</td><td>9.918</td><td>12.909</td><td>10.63149</td><td>(1021.01%) (10 times slower)</td></tr><tr style="background-color: #e56060;"><td>3</td><td>Loop concat</td><td>11.723 sec(s)</td><td>9.919</td><td>14.472</td><td>11.64345</td><td>(1145.94%) (11 times slower)</td></tr><tr><td>4</td><td>table.concat</td><td>2.151 sec(s)</td><td>2.083</td><td>2.378</td><td>2.16366</td><td>(210.26%) (2 times slower)</td></tr><tr><td>5</td><td>string.format</td><td>2.179 sec(s)</td><td>2.116</td><td>3.099</td><td>2.26572</td><td>(213%) (2 times slower)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If it's possible inline your concats, otherwise use <a class="inlcode">table.concat</a>.</div></div></div><div id="header1"><div id="test19">19. String in a function<a class="headinganchor" href="#test19">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local TYPE_bool = "bool"
+local type = type
+local function isbool1(b)
     return type(b) == "bool"
 end
 
-function isbool2(b)
+local function isbool2(b)
     return type(b) == TYPE_bool
-end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-x = isbool1(false)
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-x = isbool2(false)
-			</div>
-			<div id="subh">Bytecode Results:</div>
-			&nbsp;&nbsp;1. isbool1:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;19 instructions total.
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>Jump if A (var) = D (str)</td> 
-					<td>ISEQS</td>
-					<td>1	1</td>
-					<td>"bool"</td>
-				</tr>
-			</table>
-			&nbsp;&nbsp;2. isbool2:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;20 instructions total.
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>Set A to upvalue D</td> 
-					<td>UGET</td>
-					<td>2	0</td>
-					<td>TYPE_bool</td>
-				</tr>
-				<tr>
-					<td>Jump if A (var) = D (var)</td> 
-					<td>ISEQV</td>
-					<td>1	2</td>
-					<td></td>
-				</tr>
-			</table>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. isbool1: 51 instructions total.<br>
-			&nbsp;&nbsp;2. isbool2: 51 instructions total.
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Both functions has the same amount of operations when compiled.<br>
-			&nbsp;&nbsp;If we look at the bytecode, we can see that <a id="inlcode">isbool2</a> requires to take the upvalue and compare it as <a id="inlcode">var to var</a> when <a id="inlcode">isbool1</a> takes string constant and uses <a id="inlcode">ISEQS</a> (<a id="inlcode">var to str</a>) which may be more efficient for string comparison.<br>
-			&nbsp;&nbsp;I prefer <a id="inlcode">isbool1</a>.
-		</div>
-		<div id="header1"><div id="ch1">20. Taking value from "Multiple Return" function</div></div> <!-- ---------------------------------------------------- -->
-		<div id="text1">
-			<div id="subh">Predefines:</div>
-			<div id="code">
-local function funcmret()
+end</div><div id="subh">Code 1:</div><div id="code">isbool1(false)</div><div id="subh">Code 2:</div><div id="code">isbool2(false)</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet19">
+  <button data-testid="19" class="tablinks" onclick="OpenTab(event, 'jiton_test19')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="19" class="tablinks" onclick="OpenTab(event, 'jitoff_test19')">LuaJIT Interpreter</button><button data-testid="19" class="tablinks" onclick="OpenTab(event, 'plain_test19')">Lua 5.1</button></div><div data-testid="19" id="jiton_test19" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>KGC string: 18 instructions total.</li><li>Upvalued string: 18 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">LuaJIT compiles them with the same performance.</div></div><div data-testid="19" id="jitoff_test19" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>KGC string</td><td>0.39173 sec(s)</td><td>0.37698</td><td>0.63159</td><td>0.41579</td><td>(100%)</td></tr><tr><td>2</td><td>Upvalued string</td><td>0.40781 sec(s)</td><td>0.3934</td><td>0.51813</td><td>0.4151</td><td>(104.10%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If possible use literal strings in the function.</div></div><div data-testid="19" id="plain_test19" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>KGC string</td><td>1.324 sec(s)</td><td>1.26</td><td>1.99</td><td>1.37005</td><td>(100%)</td></tr><tr><td>2</td><td>Upvalued string</td><td>1.3915 sec(s)</td><td>1.268</td><td>1.773</td><td>1.40522</td><td>(105.09%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">If possible use literal strings in the function.</div></div></div><div id="header1"><div id="test20">20. Taking a value from a function with multiple returns<a class="headinganchor" href="#test20">🔗&#xFE0E;</a></div></div>
+<div id="text"><div id="subh">Predefines:</div><div id="code">local function funcmret()
     return 1, 2
 end
-			</div>
-			<div id="subh">Code 1:</div>
-			<div id="code">
-local _, arg2 = funcmret()
-Garg2 = arg2
-			</div>
-			<div id="subh">Code 2:</div>
-			<div id="code">
-local arg2 = select(2, funcmret()) -- Note: select is not localized.
-Garg2 = arg2
-			</div>
-			<div id="subh">Bytecode Results:</div>
-			&nbsp;&nbsp;1. With dummy varables:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp; 12 instructions total.<br>
-			&nbsp;&nbsp;2. select:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp; 16 instructions total. Diff:
-			<table>
-				<tr>
-					<th>Instruction</th> 
-					<th>Description of instruction</th>
-					<th>Operands</th>
-					<th>Source's value</th>
-				</tr>
-				<tr>
-					<td>GGET</td> 
-					<td>A = _G[D] (where D is a string)</td>
-					<td>1	0</td>
-					<td>"select"</td>
-				</tr>
-				<tr>
-					<td>KSHORT</td> 
-					<td>Set A to 16 bit signed integer D</td>
-					<td>2	2</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>CALLM</td> 
-					<td>Call (Multiple results) (Because C function)</td>
-					<td>1	2	1</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>FUNCC</td> 
-					<td>Pseudo-header for C functions</td>
-					<td></td>
-					<td>select</td>
-				</tr>
-			</table>
-			<div id="subh">Assembler Results:</div>
-			&nbsp;&nbsp;1. With dummy varables:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;34 instructions total.<br>
-			&nbsp;&nbsp;2. select:<br>
-			&nbsp;&nbsp;&nbsp;&nbsp;41 instructions total. Diff:
-			<div id="bytecode">
-mov rsi, 0xfffffffb00193338
-cmp rsi, [rcx+0x578]
-jnz 0x90e60010        ->0
-cmp dword [rcx+0x574], -0x09
-jnz 0x90e60010        ->0
-cmp dword [rcx+0x570], 0x00193310
-jnz 0x90e60010        ->0
-			</div>
-			<div id="subh">Conclusion:</div>
-			&nbsp;&nbsp;Localizing <a id="inlcode">select</a> won't help you if not compiled. Code with <a id="inlcode">select</a> has table indexing overhead.<br>
-			&nbsp;&nbsp;I suggest using dummy values (Code 1), it may look bad but Lua can optimize usage of local variables.<br>
-			&nbsp;&nbsp;Even if you need to take 20-th value: <a id="inlcode">GSET</a> will use certain registry according to operand <a id="inlcode">A</a> (this is the same as first number in <a id="inlcode">select</a> function).
-		</div>
-		<div id="bottom">
-			<div style="text-align: center; font-size: 1.5em; padding-top: 2.5em">
-			<img src="http://hits.dwyl.io/GitSparTV/LuaJIT-Benchmarks/index.html.svg"><br>
-			Made by Spar (Spar#6665)<br>
-			New benchmark tests are welcome. <a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/">GitHub Page</a><br>
-			Public Domain<br>
-			2019
-			</div>
-		</div>
-	</body>
-</html>
+
+local select = select</div><div id="subh">Code 1:</div><div id="code">local _, arg2 = funcmret()
+return arg2</div><div id="subh">Code 2:</div><div id="code">local arg2 = select(2, funcmret())
+return arg2</div><div id="subh">Results (10M iterations):</div><div class="tab" id="property_sheet20">
+  <button data-testid="20" class="tablinks" onclick="OpenTab(event, 'jiton_test20')" id="defaultOpen">LuaJIT</button>
+  <button data-testid="20" class="tablinks" onclick="OpenTab(event, 'jitoff_test20')">LuaJIT Interpreter</button><button data-testid="20" class="tablinks" onclick="OpenTab(event, 'plain_test20')">Lua 5.1</button></div><div data-testid="20" id="jiton_test20" class="tabcontent"><div id="subh">Assembler Results:</div><ol><li>With dummy variables: 18 instructions total.</li><li>select: 18 instructions total.</li></ol><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;">LuaJIT compiles them with the same performance.</div></div><div data-testid="20" id="jitoff_test20" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>With dummy variables</td><td>0.25193 sec(s)</td><td>0.24568</td><td>0.27575</td><td>0.25267</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>select</td><td>0.38455 sec(s)</td><td>0.37498</td><td>0.4397</td><td>0.38579</td><td>(152.63%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;"><a class="inlcode">select</a> makes no sense for functions with less than 10 (at least) returned values, all returned values are pushed to the stack. Any value you choose will can be pushed up individually.
+Tip: if you need only first argument wrap the function call in the parenthesizes.<div id="code">print( (math.frexp(0)) )</div>This will print only the first value.</div></div><div data-testid="20" id="plain_test20" class="tabcontent"><div id="subh">Benchmark Results:</div><div id="tbldiv"><table><tr><th>#</th><th>Name</th><th>Median</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Percentage</th></tr><tr><td>1</td><td>With dummy variables</td><td>0.611 sec(s)</td><td>0.6</td><td>0.702</td><td>0.61562</td><td>(100%)</td></tr><tr style="background-color: #e56060;"><td>2</td><td>select</td><td>0.813 sec(s)</td><td>0.786</td><td>0.926</td><td>0.81984</td><td>(133.06%)</td></tr></table></div><div id="subh">Conclusion:</div><div style="padding: 10px 0px 10px 10px; white-space: pre; overflow: auto;"><a class="inlcode">select</a> makes no sense for functions with less than 10 (at least) returned values, all returned values are pushed to the stack. Any value you choose will can be pushed up individually.
+Tip: if you need only first argument wrap the function call in the parenthesizes.<div id="code">print( (math.frexp(0)) )</div>This will print only the first value.</div></div></div><script>
+	var buttons = document.getElementsByClassName("tablinks");
+	for (i = 0; i < buttons.length; i++) {
+		if (buttons[i].id === "defaultOpen") {
+			buttons[i].click()
+		}
+	}
+</script><div id="bottom"><a href="#top">Up</a>
+Made by Spar (Spar#6665)
+<a href="https://github.com/GitSparTV/LuaJIT-Benchmarks/">New benchmark tests are welcome</a>
+Public Domain
+2020</div></body></html>

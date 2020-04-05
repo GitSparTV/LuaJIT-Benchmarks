@@ -1,60 +1,67 @@
 -- Utils
 io.stdout:setvbuf("no")
-
+ffi = require("ffi")
+local samples = 1000000
+print("Iterations: " .. samples)
 -- For benchmarking
-local function funcmret()
-	return 1,2,3,4,5,6,7,8,9,10
+local a = {
+	[0] = 0
+}
+local function clear()
+	a = {
+	[0] = 0
+}
 end
 
-function test1(__)
-	local _, _, _, _, _, _, _, _, _, arg = funcmret()
-	Garg2 = arg
+local tinsert = table.insert
+local count = 1
+
+local function test1(q)
+	a[q] = q
 end
 
-function test2(__)
-	local arg = select(10, funcmret())
-	Garg2 = arg
+local function test2(q)
+	a[0] = a[0] + 1
+	a[a[0]] = q
 end
 
 ----------------------
+local colors = true
+local cs, ce = colors and "\027[44m" or "", colors and "\027[0m" or ""
 collectgarbage()
 collectgarbage()
 collectgarbage("stop")
 collectgarbage("setstepmul", 10000)
 collectgarbage()
 collectgarbage()
-print("\027[44mSingle test...\027[0m")
-print("\027[41mBENCHING 1\027[0m")
+print(cs .. "Single test..." .. ce)
+print(cs .. "BENCHING 1" .. ce)
 test1(1)
-print("\027[41mBENCHING 1 DONE\027[0m")
+clear()
+print(cs .. "BENCHING 1 DONE" .. ce)
 collectgarbage()
 collectgarbage()
-print("\027[41mBENCHING 2\027[0m")
+print(cs .. "BENCHING 2" .. ce)
 test2(1)
-print("\027[41mBENCHING 2 DONE\027[0m")
+clear()
+print(cs .. "BENCHING 2 DONE" .. ce)
 collectgarbage()
 collectgarbage()
-print("\027[44m1000000 test...\027[0m")
+print(cs .. samples .. " iterations test..." .. ce)
 
 do
-	for warm = 1, 1000000 do
-		funcmret()
-	end
-
-	print("\027[41mBENCHING 1\027[0m")
-
-	for warm = 1, 1000000 do
+	print(cs .. "BENCHING 1" .. ce)
+	for warm = 1, samples do
 		test1(warm)
 	end
-
-	print("\027[41mBENCHING 1 DONE\027[0m")
-	print("\027[41mBENCHING 2\027[0m")
-
-	for warm = 1, 1000000 do
+	clear()
+	print(cs .. "BENCHING 1 DONE" .. ce)
+	print(cs .. "BENCHING 2" .. ce)
+	for warm = 1, samples do
 		test2(warm)
 	end
-
-	print("\027[41mBENCHING 2 DONE\027[0m")
+	clear()
+	print(cs .. "BENCHING 2 DONE" .. ce)
 end
 
 os.execute("rundll32.exe cmdext.dll,MessageBeepStub")
