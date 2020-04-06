@@ -1230,7 +1230,7 @@ However, LuaJIT suggests not try to second-guess the JIT compiler because in com
 !No localization: 19.37724 (Min: 19.18286, Max: 21.82537, Average: 19.48628) second(s) (137.26%)
 Localized a and a[n]: 14.11709 (Min: 13.8045, Max: 17.69585, Average: 14.28717) second(s) (100%)]])
 			Conclusion()
-				Add([[If your code can't compiler localization is best you can do here.]])
+				Add([[If your code can't compile, localization is best you can do here.]])
 			End()
 		End()
 			
@@ -1384,9 +1384,9 @@ In 50% cases tables are used without pre-allocated space, so it's ok to allocate
 		End()
 	End()
 
-StartTest(14) -- Table initialization before or each time on insertion
+StartTest(14) -- (REDO) Table initialization before or each time on insertion
 	Text()
-		Predefines()
+		Predefines() 
 			Code([[local T = {}
 local CachedTable = {"abc", "def", "ghk"}]])
 		TestCode([[T[times] = CachedTable]])
@@ -1558,7 +1558,7 @@ VLA: 105 NYI2.0]])
 [n]: 2.64742 (Min: 2.20694, Max: 4.07516, Average: 2.68361) second(s) (105.73%)
 VLA: 2.50381 (Min: 2.01546, Max: 3.85597, Average: 2.47497) second(s) (100%)]])
 			Conclusion()
-				Add([[For some reason LuaJIT 2.0 is not able to compile any C type. Use VLA is possible.]])
+				Add([[For some reason LuaJIT 2.0 is not able to compile any C type. Use VLA if possible.]])
 			End()
 		End()
 			
@@ -1567,7 +1567,7 @@ VLA: 2.50381 (Min: 2.01546, Max: 3.85597, Average: 2.47497) second(s) (100%)]])
 [n]: 4.32618 (Min: 3.7442, Max: 5.66979, Average: 4.37286) second(s) (102.28%)
 VLA: 4.22957 (Min: 3.54316, Max: 5.77651, Average: 4.20961) second(s) (100%)]])
 			Conclusion()
-				Add([[Use VLA is possible.]])
+				Add([[Use VLA if possible.]])
 			End()
 		End()
 	End()
