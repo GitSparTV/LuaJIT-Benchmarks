@@ -66,38 +66,25 @@ function math.median(...)
 end
 
 -- Setup
-local name1, name2 = "a[q]", "a[#a + 1]"
+local name1, name2 = "Cached table for all insertion", "!Table constructor for each insertion"
 local hr = string.rep("-", 36)
 local rt1, rt2 = {}, {}
-local samples = 1000000
+local samples = 10000000
 -- if jit then
 -- jit.off()
 -- end
 print("Testing on " .. (jit and ("LuaJIT " .. (jit.status() and "jit.on" or "jit.off")) or "Lua 5.1"))
 print("Iterations: " .. samples)
 -- For benchmarking 
-local a = {
-	[0] = 0,
-	n = 0
-}
-
-local tinsert = table.insert
-local count = 1
-
--- Note: after each run of the code the table and count variable are restored to predefined state.
--- If you don't clean them after a test, table.insert will be super slow.
+local T = {}
+local CachedTable = {"abc", "def", "ghk"}
 
 local function test1(times)
-	tinsert(a, times)
+	T[times] = CachedTable
 end
 
 local function test2(times)
-	a[times] = times
-end
-
-local function reset()
-	a = {[0] = 0, n = 0}
-	count = 0
+	T[times] = {"abc", "def", "ghk"}
 end
 
 ----------------------
@@ -115,7 +102,6 @@ do
 	local END = clock()
 	local res1 = END - START
 	print("\tWarm-up for \"" .. name1 .. "\" took: " .. topf(END - START) .. " second(s)")
-	reset()
 	START = clock()
 
 	for warm = 1, samples do
@@ -125,7 +111,6 @@ do
 
 	END = clock()
 	local res2 = END - START
-	reset()
 	print("\tWarm-up for \"" .. name2 .. "\" took: " .. topf(END - START) .. " second(s)")
 	print("\tWhole test should take about: " .. time(res1 * 100 + res2 * 100))
 end
@@ -160,7 +145,6 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
-	reset()
 	rt1[take] = END - START
 end
 
@@ -179,7 +163,6 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
-	reset()
 	rt2[take] = END - START
 end
 
@@ -206,4 +189,4 @@ end
 print(name1 .. ": " .. topf(rmed1) .. " (Min: " .. topf(rmin1) .. ", Max: " .. topf(rmax1) .. ", Average: " .. topf(ra1) .. ") second(s) (" .. topf(percentFor1) .. "%)" .. times1)
 print(name2 .. ": " .. topf(rmed2) .. " (Min: " .. topf(rmin2) .. ", Max: " .. topf(rmax2) .. ", Average: " .. topf(ra2) .. ") second(s) (" .. topf(percentFor2) .. "%)" .. times2)
 os.execute("rundll32.exe cmdext.dll,MessageBeepStub")
--- os.execute("pause")
+os.execute("pause")

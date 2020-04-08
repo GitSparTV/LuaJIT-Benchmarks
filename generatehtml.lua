@@ -1278,20 +1278,22 @@ a[a[0]] = times]=])
 		PropertySheet(1000000)
 		LuaJITOn()
 			Asm([=[
-tinsert: 163
-a[times]: 157
-a[#a + 1]: 178
-a[count]: 201
-a[a.n]: 199
-a[a[0]]: 191]=])
+tinsert: 65
+a[times]: 62
+a[#a + 1]: 72
+a[count]: 78
+a[a.n]: ~52
+a[a[0]]: ~51]=])
 			Benchmark([=[
-tinsert and a[#a + 1]: 0.09972 (Min: 0.09614, Max: 0.16774, Average: 0.10205) second(s) (1673.15%) (167 times slower)
+tinsert and a[#a + 1]: 0.09972 (Min: 0.09614, Max: 0.16774, Average: 0.10205) second(s) (1673.15%) (16 times slower)
 a[times]: 0.00596 (Min: 0.00507, Max: 0.01528, Average: 0.00629) second(s) (100%)
 a[count]: 0.00655 (Min: 0.00599, Max: 0.00806, Average: 0.00657) second(s) (109.89%)
 a[a.n]: 0.00689 (Min: 0.006, Max: 0.00865, Average: 0.00696) second(s) (115.6%)
 a[a[0]]: 0.00833 (Min: 0.00751, Max: 0.01167, Average: 0.00844) second(s) (139.76%)]=])
 			Conclusion()
-				Add([[Using a local or a constant value is the fastest method. If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.]])
+				Add([[Using a local or a constant value is the fastest method.
+If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.
+Instructions count may be incorrect due to my knowledge in assembler.]])
 			End()
 		End()
 			
@@ -1406,37 +1408,35 @@ StartTest(14) -- Table initialization before or each time on insertion
 local CachedTable = {"abc", "def", "ghk"}]])
 		TestCode([[T[times] = CachedTable]])
 		TestCode([[T[times] = {"abc", "def", "ghk"}]])
-		PropertySheet(1000000)
+		PropertySheet(10000000)
 		LuaJITOn()
-			REDO()
 			Asm([[
-Cached table for all insertion: 101
-!Table constructor for each insertion: 110]])
+Cached table for all insertion: ~46
+!Table constructor for each insertion: ~50]])
 			Benchmark([[
-Cached table for all insertion: 0.00101 (Min: 0.00077, Max: 0.00259, Average: 0.0011) second(s) (100%)
-Table constructor for each insertion: 0.02134 (Min: 0.01942, Max: 0.16945, Average: 0.02367) second(s) (2105.28%) (21 times slower)]])
+Cached table for all insertion: 0.00881 (Min: 0.00778, Max: 0.01554, Average: 0.00892) second(s) (100%)
+!Table constructor for each insertion: 0.2196 (Min: 0.19785, Max: 2.71365, Average: 0.33673) second(s) (2493.19%) (24 times slower)]])
 			Conclusion()
-				Add([[If this possible, cache your table.]])
+				Add([[If possible, cache your table.
+Instructions count may be incorrect due to my knowledge in assembler.]])
 			End()
 		End()
 			
 		LuaJITOff()
-			REDO()
 			Benchmark([[
-Cached table for all insertion: 0.0181 (Min: 0.01671, Max: 0.02724, Average: 0.0186) second(s) (100%)
-Table constructor for each insertion: 0.03385 (Min: 0.03194, Max: 0.12204, Average: 0.03555) second(s) (186.97%)]])
+Cached table for all insertion: 0.18031 (Min: 0.16969, Max: 0.27324, Average: 0.18397) second(s) (100%)
+!Table constructor for each insertion: 0.37549 (Min: 0.31935, Max: 2.9034, Average: 0.84225) second(s) (208.24%) (2 times slower)]])
 			Conclusion()
-				Add([[If this possible, cache your table.]])
+				Add([[If possible, cache your table.]])
 			End()
 		End()
 			
 		PlainLua()
-			REDO()
 			Benchmark([[
-Cached table for all insertion: 0.048 (Min: 0.045, Max: 0.061, Average: 0.0493) second(s) (100%)
-Table constructor for each insertion: 0.211 (Min: 0.19, Max: 0.356, Average: 0.21706) second(s) (439.58%) (4 times slower)]])
+Cached table for all insertion: 0.485 (Min: 0.449, Max: 0.624, Average: 0.49238) second(s) (100%)
+!Table constructor for each insertion: 2.349 (Min: 2.23, Max: 3.461, Average: 2.42184) second(s) (484.32%) (4 times slower)]])
 			Conclusion()
-				Add([[If this possible, cache your table.]])
+				Add([[If possible, cache your table.]])
 			End()
 		End()
 	End()
