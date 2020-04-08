@@ -386,7 +386,7 @@ LuaJIT uses its own interpreter and compiler and many other optimizations to imp
 
 AddHeader("About tests")
 	Text()
-	Add([[This site contains results and conclusions for LuaJIT compiler, LuaJIT interpreter and Lua 5.1.
+	Add([[This site contains results and conclusions for LuaJIT compiler, LuaJIT interpreter and Lua 5.1.4.
 LuaJIT interpreter is accounted because it's a useful information for functions in which you 100% sure they won't compile.
 Or maybe you're using embedded LuaJIT 2.0 which aborts on any C function (And FFI is disabled).
 Lua 5.1 is accounted for you decision in what to choose, or just out of curiosity.
