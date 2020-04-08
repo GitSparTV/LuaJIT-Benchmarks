@@ -1098,6 +1098,8 @@ a[0]: 0.06858 (Min: 0.06673, Max: 0.09873, Average: 0.07049) second(s) (100%)]])
 		End()
 			
 		LuaJITOff()
+			Add([[<div style="margin-bottom: 10px; white-space: pre; overflow: auto;" id="yellowinline" class="inlcode">The results of this test for LuaJIT interpreter are confusing.
+They were verified many times. Current goal is to email Mike Pall about these results and ask why are they so different.</div>]])
 			Benchmark([[
 pairs: 0.51711 (Min: 0.48241, Max: 0.67666, Average: 0.5224) second(s) (100%)
 JITed pairs: 1.80467 (Min: 1.62461, Max: 2.02158, Average: 1.77821) second(s) (348.99%) (3 times slower)
