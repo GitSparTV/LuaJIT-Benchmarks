@@ -142,11 +142,13 @@ local function TableEnd()
 	Add([[</table></div>]])
 end
 
-local function TableLine(r)
+local function TableLine(style)
 	Add("<tr")
 
-	if r then
+	if style == 0 then
 		Add([[ style="background-color: #e56060;"]])
+	elseif style == 1 then
+		Add([[ style="background-color: #dff9df;"]])
 	end
 
 	Add(">")
@@ -178,6 +180,8 @@ local function ConstructContent(t)
 
 	End()
 end
+
+local function REDO() Add([[<div style="padding-bottom: 10px;"><a id="yellowinline" class="inlcode">May be incorrect. Awaits recalculation.</a></div>]]) end
 
 local CurrentTest = 1
 local NCodes = 1
@@ -336,7 +340,10 @@ local function Benchmark(bench)
 
 	for line in string.gmatch(bench, "[^\n]+") do
 		if line:sub(1, 1) == "!" then
-			TableLine(true)
+			TableLine(0)
+			line = line:sub(2)
+		elseif line:sub(1, 1) == "*" then
+			TableLine(1)
 			line = line:sub(2)
 		else
 			TableLine()
@@ -1248,63 +1255,70 @@ StartTest(12) -- Array insertion
 	Text()
 		Predefines()
 			Code([[local a = {
-	[0] = 0
+	[0] = 0,
+	n = 0
 }
 
 local tinsert = table.insert
-local count = 1]])
+local count = 1
+
+-- Note: after each run of the code the table and count variable are restored to predefined state.
+-- If you don't clean them after a test, table.insert will be super slow.]])
 		TestCode([[tinsert(a, times)]])
 		TestCode([[a[times] = times]])
 		TestCode([[a[#a + 1] = times]])
 		TestCode([[a[count] = times
 count = count + 1]])
+		TestCode([=[a.n = a.n + 1
+a[a.n] = times]=])
 		TestCode([=[a[0] = a[0] + 1
 a[a[0]] = times]=])
 		PropertySheet(1000000)
 		LuaJITOn()
 			Asm([=[
-tinsert: 77
-a[times]: 74
-a[#a + 1]: 85
-a[count]: 102
-a[a[0]]: 100]=])
+tinsert: 163
+a[times]: 157
+a[#a + 1]: 178
+a[count]: 201
+a[a.n]: 199
+a[a[0]]: 191]=])
 			Benchmark([=[
-tinsert: 0.09991 (Min: 0.09609, Max: 0.15484, Average: 0.10376) second(s) (100%)
-a[times]: 0.00604 (Min: 0.00521, Max: 0.01118, Average: 0.00618) second(s) (6.04%) (16 times faster)
-a[#a + 1]: 0.10071 (Min: 0.09641, Max: 0.22354, Average: 0.10418) second(s) (100.80%)
-!a[count]: 0.11952 (Min: 0.08053, Max: 0.1938, Average: 0.1229) second(s) (119.62%)
-a[a[0]]: 0.00943 (Min: 0.00864, Max: 0.01265, Average: 0.00972) second(s) (9.43%) (10 times faster)
-]=])
+tinsert and a[#a + 1]: 0.09972 (Min: 0.09614, Max: 0.16774, Average: 0.10205) second(s) (1673.15%) (167 times slower)
+a[times]: 0.00596 (Min: 0.00507, Max: 0.01528, Average: 0.00629) second(s) (100%)
+a[count]: 0.00655 (Min: 0.00599, Max: 0.00806, Average: 0.00657) second(s) (109.89%)
+a[a.n]: 0.00689 (Min: 0.006, Max: 0.00865, Average: 0.00696) second(s) (115.6%)
+a[a[0]]: 0.00833 (Min: 0.00751, Max: 0.01167, Average: 0.00844) second(s) (139.76%)]=])
 			Conclusion()
-				Add([[Please notice that percentage calculation is taken from other result.
-Using a local or a constant value is the fastest method. If possible use ]]) InlineCode([=[a[0]++; a[a[0]] = times]=]) Add([[, otherwise use ]]) InlineCode([[#a + 1]]) Add([[.]])
+				Add([[Please notice that percentage calculation is taken from the other result.
+Using a local or a constant value is the fastest method. If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.]])
 			End()
 		End()
 			
 		LuaJITOff()
 			Benchmark([=[
-tinsert: 0.14412 (Min: 0.13741, Max: 0.21978, Average: 0.14607) second(s) (105.38%)
-a[times]: 0.01975 (Min: 0.01839, Max: 0.03411, Average: 0.02016) second(s) (14.44%) (6 times faster)
-a[#a + 1]: 0.13676 (Min: 0.13096, Max: 0.19211, Average: 0.13932) second(s) (100%)
-!a[count]: 0.19627 (Min: 0.14492, Max: 0.28874, Average: 0.20626) second(s) (143.51%)
-a[a[0]]: 0.03491 (Min: 0.03222, Max: 0.0404, Average: 0.03516) second(s) (25.52%) (3 times faster)]=])
+tinsert: 0.1522 (Min: 0.14448, Max: 0.21487, Average: 0.15571) second(s) (112.44%)
+*a[times]: 0.01899 (Min: 0.01791, Max: 0.03054, Average: 0.0194) second(s) (14.03%) (7 times faster)
+a[#a + 1]: 0.13535 (Min: 0.12965, Max: 0.17014, Average: 0.13644) second(s) (100%)
+*a[count]: 0.0277 (Min: 0.02617, Max: 0.03003, Average: 0.02779) second(s) (20.46%) (4 times faster)
+*a[a.n]: 0.0368 (Min: 0.03462, Max: 0.057, Average: 0.03752) second(s) (27.18%) (3 times faster)
+*a[a[0]]: 0.0335 (Min: 0.03114, Max: 0.04102, Average: 0.03386) second(s) (24.75%) (4 times faster)]=])
 			Conclusion()
-Add([[Please notice that percentage calculation is taken from other result.
-Using a local or a constant value is the fastest method. If possible use ]]) InlineCode([=[a[0]++; a[a[0]] = times]=]) Add([[, otherwise use ]]) InlineCode([[#a + 1]]) Add([[.]])
+				Add([[Please notice that percentage calculation is taken from the other result.
+Using a local or a constant value is the fastest method. If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.]])
 			End()
 		End()
 			
 		PlainLua()
 			Benchmark([=[
-tinsert: 0.137 (Min: 0.131, Max: 0.175, Average: 0.14059) second(s) (228.33%) (2 times slower)
-a[times]: 0.06 (Min: 0.057, Max: 0.069, Average: 0.06068) second(s) (100%)
-a[#a + 1]: 0.137 (Min: 0.13, Max: 0.236, Average: 0.14064) second(s) (228.33%) (2 times slower)
-!a[count]: 0.5095 (Min: 0.146, Max: 1.106, Average: 0.55534) second(s) (849.16%) (8 times slower)
-a[a[0]]: 0.115 (Min: 0.111, Max: 0.149, Average: 0.11667) second(s) (191.66%)
-]=])
+tinsert: 0.134 (Min: 0.128, Max: 0.165, Average: 0.13653) second(s) (103.07%)
+*a[times]: 0.06 (Min: 0.057, Max: 0.066, Average: 0.06042) second(s) (46.15%) (2 times faster)
+a[#a + 1]: 0.13 (Min: 0.125, Max: 0.162, Average: 0.13142) second(s) (100%)
+*a[count]: 0.075 (Min: 0.069, Max: 0.108, Average: 0.07713) second(s) (57.69%)
+a[a.n]: 0.188 (Min: 0.179, Max: 0.245, Average: 0.19067) second(s) (144.61%)
+!a[a[0]]: 0.255 (Min: 0.246, Max: 0.292, Average: 0.25796) second(s) (196.15%)]=])
 			Conclusion()
-				Add([[Please notice that percentage calculation is taken from other result.
-Using a local or a constant value is the fastest method. If possible use ]]) InlineCode([=[a[0]++; a[a[0]] = times]=]) Add([[, otherwise use ]]) InlineCode([[#a + 1]]) Add([[.]])
+				Add([[Please notice that percentage calculation is taken from the other result.
+Using a local or a constant value is the fastest method. If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.]])
 			End()
 		End()
 	End()
@@ -1384,7 +1398,7 @@ In 50% cases tables are used without pre-allocated space, so it's ok to allocate
 		End()
 	End()
 
-StartTest(14) -- (REDO) Table initialization before or each time on insertion
+StartTest(14) -- Table initialization before or each time on insertion
 	Text()
 		Predefines() 
 			Code([[local T = {}
@@ -1393,6 +1407,7 @@ local CachedTable = {"abc", "def", "ghk"}]])
 		TestCode([[T[times] = {"abc", "def", "ghk"}]])
 		PropertySheet(1000000)
 		LuaJITOn()
+			REDO()
 			Asm([[
 Cached table for all insertion: 101
 !Table constructor for each insertion: 110]])
@@ -1405,6 +1420,7 @@ Table constructor for each insertion: 0.02134 (Min: 0.01942, Max: 0.16945, Avera
 		End()
 			
 		LuaJITOff()
+			REDO()
 			Benchmark([[
 Cached table for all insertion: 0.0181 (Min: 0.01671, Max: 0.02724, Average: 0.0186) second(s) (100%)
 Table constructor for each insertion: 0.03385 (Min: 0.03194, Max: 0.12204, Average: 0.03555) second(s) (186.97%)]])
@@ -1414,6 +1430,7 @@ Table constructor for each insertion: 0.03385 (Min: 0.03194, Max: 0.12204, Avera
 		End()
 			
 		PlainLua()
+			REDO()
 			Benchmark([[
 Cached table for all insertion: 0.048 (Min: 0.045, Max: 0.061, Average: 0.0493) second(s) (100%)
 Table constructor for each insertion: 0.211 (Min: 0.19, Max: 0.356, Average: 0.21706) second(s) (439.58%) (4 times slower)]])
@@ -1611,7 +1628,7 @@ Inline, separate concat and string.format: 0.00003 (Min: 0.00003, Max: 0.00415, 
 table.concat: 0.30043 (Min: 0.26492, Max: 0.37815, Average: 0.30172) second(s) (100%)
 ]])
 			Conclusion()
-				Add([[Please notice that percentage calculation is taken from other result.
+				Add([[Please notice that percentage calculation is taken from the other result.
 This is an example when LuaJIT fails to optimize and compile code efficiently. The loop wasn't unrolled properly.
 LuaJIT suggest to find a balance between loops and unrolls and use templates.
 ]]) InlineCode([[table.concat]]) Add([[ is best solution in complicated code, however, if it's possible make concats inline or unroll loops.]])

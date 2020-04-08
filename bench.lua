@@ -66,37 +66,38 @@ function math.median(...)
 end
 
 -- Setup
-local name1, name2 = "Inline concat", "Separate concat"
+local name1, name2 = "a[q]", "a[#a + 1]"
 local hr = string.rep("-", 36)
 local rt1, rt2 = {}, {}
-local samples = 100000
+local samples = 1000000
 -- if jit then
 -- jit.off()
 -- end
 print("Testing on " .. (jit and ("LuaJIT " .. (jit.status() and "jit.on" or "jit.off")) or "Lua 5.1"))
 print("Iterations: " .. samples)
 -- For benchmarking 
-local s, d
-local bs = string.rep("----------", 1000)
-local t = {bs, bs, bs, bs, bs, bs, bs, bs, bs, bs}
-local concat = table.concat
-local format = string.format
+local a = {
+	[0] = 0,
+	n = 0
+}
 
-local function test1(q)
-	local s = bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs .. bs
+local tinsert = table.insert
+local count = 1
+
+-- Note: after each run of the code the table and count variable are restored to predefined state.
+-- If you don't clean them after a test, table.insert will be super slow.
+
+local function test1(times)
+	tinsert(a, times)
 end
 
-local function test2(q)
-	local s = bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
-	s = s .. bs
+local function test2(times)
+	a[times] = times
+end
+
+local function reset()
+	a = {[0] = 0, n = 0}
+	count = 0
 end
 
 ----------------------
@@ -114,6 +115,7 @@ do
 	local END = clock()
 	local res1 = END - START
 	print("\tWarm-up for \"" .. name1 .. "\" took: " .. topf(END - START) .. " second(s)")
+	reset()
 	START = clock()
 
 	for warm = 1, samples do
@@ -123,6 +125,7 @@ do
 
 	END = clock()
 	local res2 = END - START
+	reset()
 	print("\tWarm-up for \"" .. name2 .. "\" took: " .. topf(END - START) .. " second(s)")
 	print("\tWhole test should take about: " .. time(res1 * 100 + res2 * 100))
 end
@@ -157,6 +160,7 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
+	reset()
 	rt1[take] = END - START
 end
 
@@ -175,6 +179,7 @@ for take = 1, 100 do
 	local END = clock()
 	collectgarbage()
 	collectgarbage()
+	reset()
 	rt2[take] = END - START
 end
 
@@ -201,4 +206,4 @@ end
 print(name1 .. ": " .. topf(rmed1) .. " (Min: " .. topf(rmin1) .. ", Max: " .. topf(rmax1) .. ", Average: " .. topf(ra1) .. ") second(s) (" .. topf(percentFor1) .. "%)" .. times1)
 print(name2 .. ": " .. topf(rmed2) .. " (Min: " .. topf(rmin2) .. ", Max: " .. topf(rmax2) .. ", Average: " .. topf(ra2) .. ") second(s) (" .. topf(percentFor2) .. "%)" .. times2)
 os.execute("rundll32.exe cmdext.dll,MessageBeepStub")
-os.execute("pause")
+-- os.execute("pause")
