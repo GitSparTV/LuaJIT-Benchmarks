@@ -181,7 +181,7 @@ local function ConstructContent(t)
 	End()
 end
 
-local function REDO() Add([[<div style="padding-bottom: 10px;"><a id="yellowinline" class="inlcode">May be incorrect. Awaits recalculation.</a></div>]]) end
+local function REDO() Add([[<div style="padding-bottom: 10px; white-space: pre; overflow: auto; padding-top: 5px;"><a id="yellowinline" class="inlcode">May be incorrect. Awaits recalculation.</a></div>]]) end
 
 local CurrentTest = 1
 local NCodes = 1
@@ -1291,8 +1291,7 @@ a[count]: 0.00655 (Min: 0.00599, Max: 0.00806, Average: 0.00657) second(s) (109.
 a[a.n]: 0.00689 (Min: 0.006, Max: 0.00865, Average: 0.00696) second(s) (115.6%)
 a[a[0]]: 0.00833 (Min: 0.00751, Max: 0.01167, Average: 0.00844) second(s) (139.76%)]=])
 			Conclusion()
-				Add([[Please notice that percentage calculation is taken from the other result.
-Using a local or a constant value is the fastest method. If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.]])
+				Add([[Using a local or a constant value is the fastest method. If not possible use external counter, otherwise use ]]) InlineCode([=[a.n++; a[a.n] = times]=]) Add([[ or ]]) InlineCode([[#a + 1]]) Add([[.]])
 			End()
 		End()
 			
@@ -1625,7 +1624,7 @@ Separate concat: 18 NYI2.0
 table.concat: 39 NYI2.0
 string.format: 18 NYI2.0]])
 			Benchmark([[
-Inline, separate concat and string.format: 0.00003 (Min: 0.00003, Max: 0.00415, Average: 0.00012) second(s) (0.009986%) (10014 times faster)
+*Inline, separate concat and string.format: 0.00003 (Min: 0.00003, Max: 0.00415, Average: 0.00012) second(s) (0.009986%) (10014 times faster)
 !Loop concat: 6.70725 (Min: 5.60963, Max: 8.0101, Average: 6.57035) second(s) (2232.55%) (22 times slower)
 table.concat: 0.30043 (Min: 0.26492, Max: 0.37815, Average: 0.30172) second(s) (100%)
 ]])
