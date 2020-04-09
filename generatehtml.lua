@@ -1073,6 +1073,7 @@ for i = 1, a[0] do
 end]])
 		PropertySheet(1000000)
 		LuaJITOn()
+			REDO()
 			Asm([[
 !pairs: NYI2.1
 JITed pairs: 119
