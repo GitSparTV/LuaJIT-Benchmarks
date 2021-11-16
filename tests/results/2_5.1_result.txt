@@ -1,0 +1,5 @@
+`tests/2.lua`. Lua 5.1. Iterations: 10M
+
+Global table indexing	218.9 ns	216.19	227.55	220	216.19	0.75	4.19	2.06 KB	1.42x slower
+Local table indexing	195.76 ns	194.03	200.6	195.69	194.03	0.19	1.05	2.06 KB	1.27x slower
+Localized	154.16 ns	153.03	162.39	154.19	153.03	0.21	0.92	2.06 KB

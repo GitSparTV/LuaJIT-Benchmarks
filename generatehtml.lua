@@ -1027,12 +1027,12 @@ StartTest(10) -- for loops
 		Predefines()
 			Code([[local a = {}
 
-for i = 1, 100 do
+for i = 1, 500 do
 	a[i] = i
 end
 
-a.n = 100
-a[0] = 100
+a.n = 500
+a[0] = 500
 local length = #a
 local nxt = next
 
@@ -1052,7 +1052,7 @@ for k, v in ipairs(a) do
 	local x = v
 end]])
 		TestCode([[
-for i = 1, 100 do
+for i = 1, 500 do
 	local x = a[i]
 end]])
 		TestCode([[
@@ -1073,7 +1073,6 @@ for i = 1, a[0] do
 end]])
 		PropertySheet(1000000)
 		LuaJITOn()
-			REDO()
 			Asm([[
 !pairs: NYI2.1
 JITed pairs: 119
@@ -1084,16 +1083,13 @@ Upvalued length: 60
 a.n: 89
 a[0]: 80]])
 			Benchmark([[
-!pairs: 0.51975 (Min: 0.48428, Max: 0.63495, Average: 0.52525) second(s) (757.87%) (7 times slower)
-!JITed pairs: 0.41983 (Min: 0.39041, Max: 0.52863, Average: 0.41906) second(s) (612.17%) (6 times slower)
-ipairs: 0.12707 (Min: 0.12164, Max: 0.20861, Average: 0.13086) second(s) (185.28%)
-Known length: 0.11527 (Min: 0.11252, Max: 0.15329, Average: 0.1175) second(s) (168.08%)
-#a: 0.12063 (Min: 0.10235, Max: 0.17138, Average: 0.1199) second(s) (175.89%)
-Upvalued length: 0.08333 (Min: 0.07875, Max: 0.17807, Average: 0.08744) second(s) (121.50%)
-a.n: 0.08724 (Min: 0.08448, Max: 0.10026, Average: 0.08813) second(s) (127.20%)
-a[0]: 0.06858 (Min: 0.06673, Max: 0.09873, Average: 0.07049) second(s) (100%)]])
+!pairs: 2.17082 (Min: 2.11302, Max: 2.4175, Average: 2.18302) second(s) (832.43%) (8 times slower)
+!JITed pairs: 1.25051 (Min: 1.17275, Max: 1.57853, Average: 1.2697) second(s) (479.52%) (4 times slower)
+ipairs: 0.51708 (Min: 0.50706, Max: 0.72975, Average: 0.52824) second(s) (198.28%)
+Known length and Upvalued length and a.n and a[0]: 0.26078 (Min: 0.25137, Max: 0.34124, Average: 0.26439) second(s) (100%)
+#a: 0.28537 (Min: 0.27502, Max: 0.36823, Average: 0.28752) second(s) (109.42%)]])
 			Conclusion()
-				Add([[a[0] or a.n are the best solution you can use. (If you have ]]) InlineCode([[table.pack]]) Add([[ you may remember it creates a sequential table and adds ]]) InlineCode([[n]]) Add([[ with the size of the created table this can be used for iteration)]]) N()
+				Add([[Known length (or upvalued) or a[0] or a.n are the best solutions you can use. (If you have ]]) InlineCode([[table.pack]]) Add([[ you may remember it creates a sequential table and adds ]]) InlineCode([[n]]) Add([[ with the size of the created table this can be used for iteration)]]) N()
 				Add([[JITed pairs is still slow but it will compile.]])
 			End()
 		End()
@@ -1102,29 +1098,27 @@ a[0]: 0.06858 (Min: 0.06673, Max: 0.09873, Average: 0.07049) second(s) (100%)]])
 			Add([[<div style="margin-bottom: 10px; white-space: pre; overflow: auto;" id="yellowinline" class="inlcode">The results of this test for LuaJIT interpreter are confusing.
 They were verified many times. Current goal is to email Mike Pall about these results and ask why are they so different.</div>]])
 			Benchmark([[
-pairs: 0.51711 (Min: 0.48241, Max: 0.67666, Average: 0.5224) second(s) (100%)
-JITed pairs: 1.80467 (Min: 1.62461, Max: 2.02158, Average: 1.77821) second(s) (348.99%) (3 times slower)
-ipairs: 1.70326 (Min: 1.64163, Max: 2.1924, Average: 1.72125) second(s) (329.38%) (3 times slower)
-Known length: 0.67382 (Min: 0.6603, Max: 0.85948, Average: 0.68079) second(s) (130.30%)
-#a: 0.6967 (Min: 0.68416, Max: 0.74215, Average: 0.70065) second(s) (134.72%)
-Upvalued length: 0.67209 (Min: 0.6611, Max: 0.77354, Average: 0.67794) second(s) (129.97%)
-a.n: 0.69201 (Min: 0.66747, Max: 1.00413, Average: 0.7115) second(s) (133.82%)
-a[0]: 0.6715 (Min: 0.66014, Max: 0.77048, Average: 0.67611) second(s) (129.85%)]])
+pairs: 2.21504 (Min: 2.15331, Max: 2.71601, Average: 2.23086) second(s) (100%)
+JITed pairs: 8.11347 (Min: 8.01436, Max: 8.67261, Average: 8.21869) second(s) (366.28%)
+ipairs: 7.91321 (Min: 7.6213, Max: 8.81676, Average: 7.96212) second(s) (357.24%)
+Known length: 3.44453 (Min: 3.10363, Max: 3.70526, Average: 3.4225) second(s) (155.50%)
+#a: 3.48808 (Min: 3.39165, Max: 4.52206, Average: 3.54784) second(s) (1%)
+Upvalued length and a.n and a[0]: 3.07897 (Min: 3.03852, Max: 3.30807, Average: 3.08738) second(s) (1%)]])
 			Conclusion()
 				Add([[These results requires an explanation, no conclusion can be made.]])
 			End()
 		End()
 			
 		PlainLua()
-			Benchmark([[
-!pairs: 3.5325 (Min: 3.241, Max: 3.968, Average: 3.51657) second(s) (193.03%)
-ipairs: 3.226 (Min: 3.059, Max: 4.155, Average: 3.24595) second(s) (176.28%)
-Known length: 1.83 (Min: 1.753, Max: 2.005, Average: 1.83169) second(s) (100%)
-#a: 1.8305 (Min: 1.755, Max: 2.114, Average: 1.84612) second(s) (100.02%)
-Upvalued length: 1.8775 (Min: 1.794, Max: 2.452, Average: 1.9197) second(s) (102.59%)
-a.n: 1.8815 (Min: 1.773, Max: 2.248, Average: 1.89361) second(s) (102.81%)
-a[0]: 1.841 (Min: 1.779, Max: 2.197, Average: 1.86906) second(s) (100.60%)
-]])
+-- 			Benchmark([[
+-- !pairs: 
+-- ipairs: 
+-- Known length: 
+-- #a: 
+-- Upvalued length: 
+-- a.n: 
+-- a[0]: 
+-- ]])
 			Conclusion()
 				Add([[a[0] and a.n are fast as in compiled LuaJIT.]])
 			End()

@@ -1,0 +1,5 @@
+`tests/2.lua`. LuaJIT 2.1.0-beta3 jit.on. Iterations: 10M
+
+Global table indexing	21.43 ns	20.97	22.29	21.46	20.97	0.07	0.37	15.52 KB	1.22x slower
+Local table indexing	20.26 ns	19.8	20.83	20.26	19.8	0.04	0.27	12.7 KB	1.16x slower
+Localized	17.53 ns	17.12	18.34	17.55	17.12	0.06	0.31	11.13 KB

@@ -1,5 +1,7 @@
 testall.cmd
 asm.cmd
 index_.html
+jit/*
 *.sublime-workspace
 *.sublime-project
+*.dll

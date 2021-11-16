@@ -1,0 +1,4 @@
+`tests/1.lua`. LuaJIT 2.0.5 jit.on. Iterations: 10M
+
+Global	7.7 ns	7.46	8	7.7	7.46	0.02	0.14	10.83 KB	1.25x slower
+Local	6.16 ns	6.01	6.47	6.16	6.01	0.02	0.11	9.16 KB

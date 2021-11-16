@@ -1,0 +1,237 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>LuaJIT Benchmarks</title>
+        <meta name="description" content="LuaJIT Benchmarks. Page with test cases showing the performance of LuaJIT and Lua in common coding practices.">
+        <meta name="author" content="https://github.com/GitSparTV">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="Lua, LuaJIT, LuaJIT vs Lua, performance, benchmark, globals, locals, tips, optimization">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+        <link href="style.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="monokai-sublime.css">
+        <script src="highlight.pack.js"></script>
+        <script>hljs.highlightAll();</script>
+        <script>
+            function SwitchResults(event) {
+                let button = event.srcElement;
+                
+                button.classList.add("active");
+
+                {
+                    let array_children = button.parentNode.children; 
+
+                    for (i = 0; i < array_children.length; ++i) {
+                        let child_button = array_children[i];
+
+                        if (child_button !== button) {
+                            child_button.classList.remove("active");
+                        }
+                    }
+                }
+
+                let test_id = button.dataset.testid;
+                let test_for = button.dataset.testfor;
+
+                document.querySelectorAll(".results").forEach(function(results_div) {
+                    if (results_div.dataset.testid === test_id) {
+                        if (results_div.dataset.testfor === test_for) {
+                            results_div.style.display = "block";
+                        } else {
+                            results_div.style.display = "none";
+                        }
+                    }
+                })
+            }
+        </script>
+    </head>
+    <body>
+        <div id="header"></div>
+        <div class="center" id="logo"><h1>LuaJIT Benchmarks</h1></div>
+        <div class="main">
+            <div class="box">
+                <h2>Hello</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+            </div>
+            <div class="box">
+                <h2>2. Local vs Global table indexing</h2>
+                <p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <h3>Results (10M iterations):</h3>
+                <div class="buttonarray">
+                    <button type="button" class="active left" data-testid="2" data-testfor="luajit-21" onclick="SwitchResults(event)">LuaJIT 2.1</button>
+                    <button type="button" data-testid="2" data-testfor="luajit-21-off" onclick="SwitchResults(event)">LuaJIT 2.1 Interpreter</button>
+                    <button type="button" data-testid="2" data-testfor="luajit-20" onclick="SwitchResults(event)">LuaJIT 2.0</button>
+                    <button type="button" data-testid="2" data-testfor="luajit-20-off" onclick="SwitchResults(event)">LuaJIT 2.0 Interpreter</button>
+                    <button type="button" data-testid="2" data-testfor="lua-51" onclick="SwitchResults(event)">Lua 5.1</button>
+                    <button type="button" class="right" data-testid="2" data-testfor="lua-54" onclick="SwitchResults(event)">Lua 5.4</button>
+                </div>
+                <div class="results" data-testid="2" data-testfor="luajit-21">
+                    <div class="tbldiv">
+                        <table style="width:100%"><tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Median</th>
+                            <th>Minimum</th>
+                            <th>Maximum</th>
+                            <th>Average</th>
+                            <th>Mode</th>
+                            <th>STD</th>
+                            <th>IQR</th>
+                            <th>GC</th>
+                        </tr>
+                        <tr style="background-color: #ffcdd9">
+                            <td>Global table indexing</td>
+                            <td>26.61 ns (1.11x slower)</td>
+                            <td>26.32</td>
+                            <td>28.58</td>
+                            <td>26.6</td>
+                            <td>26.32</td>
+                            <td>0.05</td>
+                            <td>0.23</td>
+                            <td>15.78 KB</td>
+                        </tr>
+                        <tr style="background-color: #ffe6ec">
+                            <td>Local table indexing</td>
+                            <td>25.86 ns (1.08x slower)</td>
+                            <td>25.52</td>
+                            <td>26.48</td>
+                            <td>25.87</td>
+                            <td>25.52</td>
+                            <td>0.05</td>
+                            <td>0.22</td>
+                            <td>12.9 KB</td>
+                        </tr>
+                        <tr>
+                            <td>Localized</td>
+                            <td>24.01 ns</td>
+                            <td>23.66</td>
+                            <td>26.83</td>
+                            <td>24.02</td>
+                            <td>23.66</td>
+                            <td>0.05</td>
+                            <td>0.27</td>
+                            <td>11.34 KB</td>
+                        </tr>
+                        </tbody></table>
+                    </div>
+                </div>
+                <div class="results" style="display: none" data-testid="2" data-testfor="luajit-20">
+                    <div class="tbldiv">
+                        <table style="width:100%"><tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Median</th>
+                            <th>Minimum</th>
+                            <th>Maximum</th>
+                            <th>Average</th>
+                            <th>Mode</th>
+                            <th>STD</th>
+                            <th>IQR</th>
+                            <th>GC</th>
+                        </tr>
+                        <tr style="background-color: #ffcdd9">
+                            <td>Global table indexing</td>
+                            <td>26.61 ns (1.11x slower)</td>
+                            <td>26.32</td>
+                            <td>28.58</td>
+                            <td>26.6</td>
+                            <td>26.32</td>
+                            <td>0.05</td>
+                            <td>0.23</td>
+                            <td>15.78 KB</td>
+                        </tr>
+                        <tr style="background-color: #ffe6ec">
+                            <td>Local table indexing</td>
+                            <td>25.86 ns (1.08x slower)</td>
+                            <td>25.52</td>
+                            <td>26.48</td>
+                            <td>25.87</td>
+                            <td>25.52</td>
+                            <td>0.05</td>
+                            <td>0.22</td>
+                            <td>12.9 KB</td>
+                        </tr>
+                        <tr>
+                            <td>Localized</td>
+                            <td>24.01 ns</td>
+                            <td>23.66</td>
+                            <td>26.83</td>
+                            <td>24.02</td>
+                            <td>23.66</td>
+                            <td>0.05</td>
+                            <td>0.27</td>
+                            <td>11.34 KB</td>
+                        </tr>
+                        </tbody></table>
+                    </div>
+                </div>
+                <h3>Predefines:</h3>
+                <pre><code class="lua">local lnumbers = {}
+
+for k = 0, 999 do
+    lnumbers[k] = k + 1
+end
+
+header = {
+    numbers = lnumbers
+}
+
+local lheader = header
+local lmath = math
+local lsin = math.sin
+local lcos = math.cos
+local ltan = math.tan
+local ltanh = math.tanh
+
+local lcollector = {}
+for k = 1, 10000000 do
+    lcollector[k] = true
+end
+collector = lcollector
+header.collector = lcollector</code></pre>
+                <h3>Global table indexing:</h3>
+                <pre><code class="lua">local key = iteration % 4
+
+if key == 0 then
+    header.collector[iteration] = math.sin(header.numbers[iteration % 1000])
+elseif key == 1 then
+    header.collector[iteration] = math.cos(header.numbers[iteration % 1000])
+elseif key == 2 then
+    header.collector[iteration] = math.tan(header.numbers[iteration % 1000])
+elseif key == 3 then
+    header.collector[iteration] = math.tanh(header.numbers[iteration % 1000])
+end</code></pre>
+                <h3>Local table indexing:</h3>
+                <pre><code class="lua">local key = iteration % 4
+
+if key == 0 then
+    lheader.collector[iteration] = lmath.sin(lheader.numbers[iteration % 1000])
+elseif key == 1 then
+    lheader.collector[iteration] = lmath.cos(lheader.numbers[iteration % 1000])
+elseif key == 2 then
+    lheader.collector[iteration] = lmath.tan(lheader.numbers[iteration % 1000])
+elseif key == 3 then
+    lheader.collector[iteration] = lmath.tanh(lheader.numbers[iteration % 1000])
+end</code></pre>
+                <h3>Localized:</h3>
+                <pre><code class="lua">local key = iteration % 4
+
+if key == 0 then
+    lcollector[iteration] = lsin(lnumbers[iteration % 1000])
+elseif key == 1 then
+    lcollector[iteration] = lcos(lnumbers[iteration % 1000])
+elseif key == 2 then
+    lcollector[iteration] = ltan(lnumbers[iteration % 1000])
+elseif key == 3 then
+    lcollector[iteration] = ltanh(lnumbers[iteration % 1000])
+end</code></pre>
+                </div>
+            </div>
+        </div>
+        <div id="footer"></div>
+    </body>
+</html>
